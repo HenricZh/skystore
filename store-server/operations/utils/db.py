@@ -47,7 +47,7 @@ async def create_database(
             await conn.execute(f"TRUNCATE TABLE {table_name} RESTART IDENTITY CASCADE")
         print(f"Database {db_name} truncated successfully.")
         await conn.close()
-    except Exception as _:
+    except Exception:
         # the database does not exist
         # connect to the default database, and create the new database we designated
         print(f"Database {db_name} does not exist. Creating...")
@@ -105,7 +105,7 @@ def run_create_database():
 db_init_log = None
 try:
     db_init_log = UltraDict(name="db_init_log", create=True)
-except Exception as _:
+except Exception:
     time.sleep(5)
     db_init_log = UltraDict(name="db_init_log", create=False)
 

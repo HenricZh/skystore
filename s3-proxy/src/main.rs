@@ -14,6 +14,7 @@ mod utils {
 }
 
 use crate::skyproxy::SkyProxy;
+use crate::skyproxy::SkyProxyConfig;
 use crate::utils::type_utils::new_head_object_request;
 use futures::future::FutureExt;
 use s3s::S3Error;
@@ -69,17 +70,30 @@ async fn main() {
 
     let version_enable: String = env::var("VERSION_ENABLE").expect("VERSION_ENABLE must be set");
 
-    let proxy = SkyProxy::new(
-        init_regions,
-        client_from_region,
-        local_run,
+    let config = SkyProxyConfig {
+        regions: init_regions.clone(),
+        client_from_region: client_from_region.clone(),
+        local: local_run,
         local_server,
-        (get_policy, put_policy),
-        skystore_bucket_prefix,
-        version_enable,
-        server_addr,
-    )
-    .await;
+        policy: (get_policy.clone(), put_policy.clone()),
+        skystore_bucket_prefix: skystore_bucket_prefix.clone(),
+        version_enable: version_enable.clone(),
+        server_addr: server_addr.clone(),
+    };
+
+    let proxy = SkyProxy::new(config).await;
+
+    // let proxy = SkyProxy::new(
+    //     init_regions,
+    //     client_from_region,
+    //     local_run,
+    //     local_server,
+    //     (get_policy, put_policy),
+    //     skystore_bucket_prefix,
+    //     version_enable,
+    //     server_addr,
+    // )
+    // .await;
 
     // Setup S3 service
     // TODO: Add auth and configure virtual-host style domain

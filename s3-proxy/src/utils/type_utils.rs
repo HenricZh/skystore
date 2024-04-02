@@ -384,7 +384,6 @@ pub fn parse_range(range: &str) -> (u64, Option<u64>) {
 
 pub fn write_metrics_to_file(mut metrics: String, path: &str) -> Result<()> {
     let mut file = std::fs::OpenOptions::new()
-        .write(true)
         .create(true)
         .append(true)
         .open(path)

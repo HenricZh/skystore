@@ -48,6 +48,9 @@ class DBLogicalObject(Base):
         cascade="all, delete, delete-orphan",
     )
 
+    # NOTE: Eviction related fields
+    # base_region = Column(String, nullable=True, default=None)
+
     # Add relationship to physical object
     physical_object_locators = relationship(
         "DBPhysicalObjectLocator",
@@ -94,6 +97,13 @@ class DBPhysicalObjectLocator(Base):
         back_populates="physical_object_locator",
         cascade="all, delete, delete-orphan",
     )
+
+    # NOTE: Eviction related fields
+    # TTL in seconds
+    # ttl = Column(Integer, nullable=True, default=None)
+
+    # Storage start time
+    # storage_start_time = Column(DateTime, nullable=True, default=None)
 
     # Add relationship to logical object
     logical_object_id = Column(

@@ -13,16 +13,37 @@ from operations.schemas.object_schemas import (
     HealthcheckResponse,
 )
 from operations.schemas.bucket_schemas import DBLogicalBucket, DBPhysicalBucketLocator
-from operations.bucket_operations import router as bucket_operations_router
-from operations.object_operations import router as object_operations_router
 from operations.utils.db import engine
 
+# Import routers
+from operations.bucket_operations.create import router as bucket_create_router
+from operations.bucket_operations.delete import router as bucket_delete_router
+from operations.bucket_operations.locate import router as bucket_locate_router
+from operations.bucket_operations.metadata import router as bucket_metadata_router
+
+from operations.object_operations.policy import router as object_update_policy_router
+from operations.object_operations.delete import router as object_delete_router
+from operations.object_operations.warmup import router as object_warmup_router
+from operations.object_operations.metadata import router as object_metadata_router
+from operations.object_operations.multipart import router as object_multipart_router
+from operations.object_operations.put import router as object_put_router
+from operations.object_operations.get import router as object_get_router
 
 app = FastAPI()
 
 load_dotenv()
-app.include_router(bucket_operations_router)
-app.include_router(object_operations_router)
+app.include_router(bucket_create_router)
+app.include_router(bucket_delete_router)
+app.include_router(bucket_locate_router)
+app.include_router(bucket_metadata_router)
+
+app.include_router(object_update_policy_router)
+app.include_router(object_delete_router)
+app.include_router(object_warmup_router)
+app.include_router(object_metadata_router)
+app.include_router(object_multipart_router)
+app.include_router(object_put_router)
+app.include_router(object_get_router)
 
 stop_task_flag = asyncio.Event()
 background_tasks = set()
@@ -139,7 +160,7 @@ async def startup():
                 # await conn.exec_driver_sql("pragma journal_mode=memory")
                 # await conn.exec_driver_sql("pragma synchronous=OFF")
                 break
-        except Exception as _:
+        except Exception:
             print("Database still creating, waiting for 5 seconds...")
             await asyncio.sleep(5)
             startup_time += 5

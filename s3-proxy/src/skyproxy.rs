@@ -5,7 +5,6 @@ use bytes::BytesMut;
 use chrono::Utc;
 use core::panic;
 use futures::StreamExt;
-use hyper::server;
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use s3s::stream::ByteStream;
 use s3s::{dto::*, Body};
@@ -30,17 +29,30 @@ pub struct SkyProxy {
     pub server_addr: String,
 }
 
+pub struct SkyProxyConfig {
+    pub regions: Vec<String>,
+    pub client_from_region: String,
+    pub local: bool,
+    pub local_server: bool,
+    pub policy: (String, String),
+    pub skystore_bucket_prefix: String,
+    pub version_enable: String,
+    pub server_addr: String,
+}
+
 impl SkyProxy {
-    pub async fn new(
-        regions: Vec<String>,
-        client_from_region: String,
-        local: bool,
-        local_server: bool,
-        policy: (String, String),
-        skystore_bucket_prefix: String,
-        version_enable: String,
-        server_addr: String,
-    ) -> Self {
+    pub async fn new(config: SkyProxyConfig) -> Self {
+        let SkyProxyConfig {
+            regions,
+            client_from_region,
+            local,
+            local_server,
+            policy,
+            skystore_bucket_prefix,
+            version_enable,
+            server_addr,
+        } = config;
+
         let mut store_clients = HashMap::new();
 
         if local {
@@ -564,7 +576,8 @@ impl S3 for SkyProxy {
                     op: "LIST".to_string(),
                 };
 
-                write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
+                let _ =
+                    write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
 
                 Ok(S3Response::new(output))
             }
@@ -720,7 +733,7 @@ impl S3 for SkyProxy {
             op: "HEAD".to_string(),
         };
 
-        write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
+        let _ = write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
 
         Ok(head_object_response)
     }
@@ -773,7 +786,6 @@ impl S3 for SkyProxy {
 
         let duration_cp = start_cp_time.elapsed().as_secs_f32();
 
-        let client_from_region = self.client_from_region.clone();
         let key_clone = key.clone();
 
         match locator {
@@ -1045,7 +1057,10 @@ impl S3 for SkyProxy {
                         op: "GET".to_string(),
                     };
 
-                    write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
+                    let _ = write_metrics_to_file(
+                        serde_json::to_string(&metrics).unwrap(),
+                        "metrics.json",
+                    );
 
                     return Ok(res);
                 }
@@ -1065,7 +1080,7 @@ impl S3 for SkyProxy {
         // Idempotent PUT
 
         let start_time = Instant::now();
-        let mut duration_complete_upload = 0.0;
+        let duration_complete_upload = 0.0;
 
         if self.version_enable == *"NULL" {
             let locator = self
@@ -1132,15 +1147,12 @@ impl S3 for SkyProxy {
                     size
                 };
 
-                let client_from_region = self.client_from_region.clone();
-                let key = req.input.key.clone();
-
                 tasks.spawn(async move {
                     let put_resp = client.put_object(req).await.unwrap();
                     let e_tag = put_resp.output.e_tag.unwrap();
                     let last_modified = current_timestamp_string();
 
-                    let start_complete_upload_time = Instant::now();
+                    // let start_complete_upload_time = Instant::now();
 
                     apis::complete_upload(
                         &conf,
@@ -1158,10 +1170,10 @@ impl S3 for SkyProxy {
                     // max duration of complete_upload
                     // since using write_local policy, we only need to wait for the first complete_upload to finish
                     // no concurrency bug worry
-                    duration_complete_upload = f32::max(
-                        duration_complete_upload,
-                        start_complete_upload_time.elapsed().as_secs_f32(),
-                    );
+                    // duration_complete_upload = f32::max(
+                    //     duration_complete_upload,
+                    //     start_complete_upload_time.elapsed().as_secs_f32(),
+                    // );
 
                     // let put_latency = start_time.elapsed().as_secs_f32();
                     // let system_time: SystemTime = Utc::now().into();
@@ -1215,7 +1227,7 @@ impl S3 for SkyProxy {
             op: "PUT".to_string(),
         };
 
-        write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
+        let _ = write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
 
         return res;
     }
@@ -1303,7 +1315,7 @@ impl S3 for SkyProxy {
             }
         };
 
-        let mut duration_cp_1 = start_cp_1_time.elapsed().as_secs_f32();
+        let duration_cp_1 = start_cp_1_time.elapsed().as_secs_f32();
 
         let delete_markers_map = Arc::new(delete_objects_resp.delete_markers);
         let op_type_map = delete_objects_resp.op_type;
@@ -1416,7 +1428,7 @@ impl S3 for SkyProxy {
                     op_types.push(op_type.clone());
                 }
                 if !completed_ids.is_empty() {
-                    let start_cp_2_time = Instant::now();
+                    // let start_cp_2_time = Instant::now();
 
                     apis::complete_delete_objects(
                         &dir_conf_clone,
@@ -1429,11 +1441,12 @@ impl S3 for SkyProxy {
                     .await
                     .unwrap();
 
-                    let duration_cp_2 = start_cp_2_time.elapsed().as_secs_f32();
+                    // let duration_cp_2 = start_cp_2_time.elapsed().as_secs_f32();
+
                     // NOTE: This metrics measurement method here can nonly be used on single-region/copy-on-read/write-local ones
                     // since when replicating all, we will perform these operations on all regions by parallel
                     // then we should choose the one with largest latency
-                    duration_cp_1 += duration_cp_2;
+                    // duration_cp_1 += duration_cp_2;
                 }
 
                 if version_enable == *"NULL" {
@@ -1488,7 +1501,7 @@ impl S3 for SkyProxy {
                             fails_op_type_vec.push(op_type.clone());
                         }
                         if !fails_ids_vec.is_empty() {
-                            let start_cp_2_time = Instant::now();
+                            // let start_cp_2_time = Instant::now();
 
                             apis::complete_delete_objects(
                                 &dir_conf_clone,
@@ -1501,8 +1514,8 @@ impl S3 for SkyProxy {
                             .await
                             .unwrap();
 
-                            let duration_cp_2 = start_cp_2_time.elapsed().as_secs_f32();
-                            duration_cp_1 += duration_cp_2;
+                            // let duration_cp_2 = start_cp_2_time.elapsed().as_secs_f32();
+                            // duration_cp_1 += duration_cp_2;
                         }
                     }
                 }
@@ -1551,7 +1564,7 @@ impl S3 for SkyProxy {
             op: "DELETE".to_string(),
         };
 
-        write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
+        let _ = write_metrics_to_file(serde_json::to_string(&metrics).unwrap(), "metrics.json");
 
         return Ok(res);
     }

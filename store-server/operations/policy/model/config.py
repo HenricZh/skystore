@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class LatencySLO(BaseModel):
@@ -7,10 +8,14 @@ class LatencySLO(BaseModel):
 
 
 class Config(BaseModel):
-    storage_region: str
+    storage_region: Optional[int] = ""  # For Spanstore
     placement_policy: str
     transfer_policy: str
-    latency_slo: LatencySLO
-    consistency: str
 
-    # TODO: Add other validations?
+    fixed_base_region: Optional[bool] = False  # for Teven and Tevict
+    # latency_slo: LatencySLO
+    # consistency: str
+
+    window_size: Optional[int] = None  # only for T_evict
+    cache_size: Optional[int] = None  # in bytes, for static cache eviction
+    cache_ttl: Optional[int] = None  # in hours, for fixed TTL cache eviction

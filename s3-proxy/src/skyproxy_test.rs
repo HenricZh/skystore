@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::skyproxy::SkyProxy;
+    use crate::skyproxy::{SkyProxy, SkyProxyConfig};
     use crate::utils::type_utils::*;
     use lazy_static::lazy_static;
     use s3s::dto::*;
@@ -58,30 +58,31 @@ mod tests {
     }
 
     async fn setup_sky_proxy() -> SkyProxy {
-        SkyProxy::new(
-            REGIONS.clone(),
-            CLIENT_FROM_REGION.clone(),
-            true,
-            true,
-            ("cheapest".to_string(), "push".to_string()),
-            "skystore".to_string(),
-            "NULL".to_string(),
-            "localhost".to_string(),
-        )
+        SkyProxy::new(SkyProxyConfig {
+            regions: REGIONS.clone(),
+            client_from_region: CLIENT_FROM_REGION.clone(),
+            local: true,
+            local_server: true,
+            policy: ("cheapest".to_string(), "push".to_string()),
+            skystore_bucket_prefix: "skystore".to_string(),
+            version_enable: "NULL".to_string(),
+            server_addr: "localhost".to_string(),
+        })
         .await
     }
 
+    #[allow(dead_code)]
     async fn setup_sky_proxy_version_enabled() -> SkyProxy {
-        SkyProxy::new(
-            REGIONS.clone(),
-            CLIENT_FROM_REGION.clone(),
-            true,
-            true,
-            ("cheapest".to_string(), "push".to_string()),
-            "skystore".to_string(),
-            "Enabled".to_string(),
-            "localhost".to_string(),
-        )
+        SkyProxy::new(SkyProxyConfig {
+            regions: REGIONS.clone(),
+            client_from_region: CLIENT_FROM_REGION.clone(),
+            local: true,
+            local_server: true,
+            policy: ("cheapest".to_string(), "push".to_string()),
+            skystore_bucket_prefix: "skystore".to_string(),
+            version_enable: "Enabled".to_string(),
+            server_addr: "localhost".to_string(),
+        })
         .await
     }
 
@@ -184,6 +185,7 @@ mod tests {
             let body = result_bytes.concat();
             assert!(body == "abcdefg".to_string().into_bytes());
         }
+
         // test repeated put request with version enabling, it should return success
         // {
         //     let mut request1 =
