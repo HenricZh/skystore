@@ -90,7 +90,7 @@ async def start_upload(
     if (
         request.version_id
         and not existing_object
-        and (request.copy_src_bucket is None or put_policy.name() == "copy_on_read")
+        and (request.copy_src_bucket is None or put_policy.name() == "always_store")
     ):
         return Response(
             status_code=404,
@@ -183,7 +183,7 @@ async def start_upload(
     #   - Otherwise, check version_suspended field, - if False, create new logical object and set the field to be False
     #   - if True, use existing object (overwrite the existing object)
 
-    elif put_policy.name() == "copy_on_read" or (
+    elif put_policy.name() == "always_store" or (
         version_enabled is None or existing_object.version_suspended
     ):
         logical_object = existing_object
@@ -203,7 +203,7 @@ async def start_upload(
 
     # when enabling versioning, primary exist does not equal to the pull-on-read case
     # make sure we use copy-on-read policy
-    if primary_exists and put_policy.name() == "copy_on_read":
+    if primary_exists and put_policy.name() == "always_store":
         # Assume that physical bucket locators for this region already exists and we don't need to create them
         # For pull-on-read
         primary_write_region = [
@@ -391,7 +391,7 @@ async def complete_upload(
             and physical_locator.is_primary
         )
         or policy_name == "write_local"
-        or policy_name == "copy_on_read"
+        or policy_name == "always_store"
         or policy_name == "single_region"
     ):
         # NOTE: might not need to update the logical object for consecutive reads for copy_on_read

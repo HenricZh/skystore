@@ -27,7 +27,7 @@ class GetPolicy(str, Enum):
 
 
 class PutPolicy(str, Enum):
-    copy_on_read = "copy_on_read"
+    always_store = "always_store"
     # read = "read"
     write_local = "write_local"
     push = "push"

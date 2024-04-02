@@ -40,13 +40,7 @@ def load_profile(file_name: str):
     return pd.read_csv(f"src/profiles/{file_name}")
 
 
-def make_nx_graph(
-    cost_path=None,
-    throughput_path=None,
-    latency_path=None,
-    storage_cost_path=None,
-    num_vms=1,
-):
+def make_nx_graph(cost_path=None, throughput_path=None, latency_path=None, storage_cost_path=None, num_vms=1):
     """
     Default graph with capacity constraints and cost info
     nodes: regions, edges: links
@@ -67,9 +61,11 @@ def make_nx_graph(
         throughput = pd.read_csv(throughput_path)
 
     if latency_path is None:
-        latency = pd.read_csv(os.path.join(path, "profiles", "latency.csv"))
+        with open(os.path.join(path, "profiles", "aws_latency.json"), "r") as f:
+            latency = json.load(f)
     else:
-        latency = pd.read_csv(latency_path)
+        with open(latency_path, "r") as f:
+            latency = json.load(f)
 
     if storage_cost_path is None:
         storage = pd.read_csv(os.path.join(path, "profiles", "storage.csv"))
@@ -78,22 +74,13 @@ def make_nx_graph(
 
     G = nx.DiGraph()
     for _, row in throughput.iterrows():
-        G.add_edge(
-            row["src_region"],
-            row["dst_region"],
-            cost=None,
-            throughput=num_vms * row["throughput_sent"] / 1e9,
-        )
-
-    for _, row in latency.iterrows():
-        row = row[0]
-        row_dict = ast.literal_eval(row)
-        src = row_dict["src_region"]
-        dst = row_dict["dst_bucket_region"]
-        if not G.has_edge(src, dst):
+        if row["src_region"] == row["dst_region"]:
             continue
+        G.add_edge(row["src_region"], row["dst_region"], cost=None, throughput=num_vms * row["throughput_sent"] / 1e9)
 
-        G[src][dst]["latency"] = row_dict["download_latency"]
+    # just keep aws nodes and edges
+    aws_nodes = [node for node in G.nodes if node.startswith("aws")]
+    G = G.subgraph(aws_nodes).copy()
 
     for _, row in cost.iterrows():
         if row["src"] in G and row["dest"] in G[row["src"]]:
@@ -110,15 +97,12 @@ def make_nx_graph(
     no_storage_cost = set()
     for _, row in storage.iterrows():
         region = row["Vendor"] + ":" + row["Region"]
-
         if region in G:
-            if row["Group"] == "storage" and (
-                row["Tier"] == "General Purpose" or row["Tier"] == "Hot"
-            ):
+            if row["Group"] == "storage" and (row["Tier"] == "General Purpose" or row["Tier"] == "Hot"):
                 G.nodes[region]["priceStorage"] = row["PricePerUnit"]
         else:
             no_storage_cost.add(region)
-    print("Unable to get storage cost for: ", no_storage_cost)
+    # print("Unable to get storage cost for: ", no_storage_cost)
 
     # TODO: add attributes priceGet, pricePut, and priceStorage to each node
     for node in G.nodes:
@@ -127,25 +111,30 @@ def make_nx_graph(
         if "priceStorage" not in G.nodes[node]:
             G.nodes[node]["priceStorage"] = 0.023
 
-    # NOTE: add default throughput and latency to self-edges
     for node in G.nodes:
         if not G.has_edge(node, node):
             ingress_limit = (
                 aws_instance_throughput_limit[1]
                 if node.startswith("aws")
-                else (
-                    gcp_instance_throughput_limit[1]
-                    if node.startswith("gcp")
-                    else azure_instance_throughput_limit[1]
-                )
+                else gcp_instance_throughput_limit[1]
+                if node.startswith("gcp")
+                else azure_instance_throughput_limit[1]
             )
-            G.add_edge(
-                node, node, cost=0, throughput=num_vms * ingress_limit, latency=40
-            )
+            # read from local storage, temp set to 0.7 for now
+            G.add_edge(node, node, cost=0, throughput=num_vms * ingress_limit, latency=0.70)
 
-    # aws_nodes = [node for node in G.nodes if node.startswith("aws")]
+    for src, destinations in latency.items():
+        for dst, latency_value in destinations.items():
+            src_node = "aws:" + src
+            dst_node = "aws:" + dst
+            if not G.has_edge(src_node, dst_node):
+                print(f"Edge {src_node} -> {dst_node} doesn't exist")
+                continue  # Skip if the edge doesn't exist
+            G[src_node][dst_node]["latency"] = latency_value
 
-    # just keep aws nodes and edges
-    # G = G.subgraph(aws_nodes).copy()
-
+    # Removed all the nodes that has any in- or out-edge with attribute latency=None
+    # G.remove_nodes_from([node for node in G.nodes if any([G[node][neighbor].get("latency") is None for neighbor in G.neighbors(node)])])
+    G.remove_nodes_from(["aws:eu-central-2", "aws:ap-southeast-3", "aws:eu-south-2"])
+    # print("Latency attributes: ", G.edges.data("latency"))
+    print(f"Number of nodes: {len(G.nodes)}")
     return G

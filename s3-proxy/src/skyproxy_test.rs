@@ -48,9 +48,7 @@ mod tests {
                 .output()
                 .expect("Failed to execute command");
 
-            if output.status.success() {
-                println!("Command executed successfully");
-            } else {
+            if !output.status.success() {
                 eprintln!("Command failed to execute");
                 eprintln!("stderr: {}", String::from_utf8_lossy(&output.stderr));
             }

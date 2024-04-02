@@ -730,7 +730,7 @@ def test_get_object_write_local_and_pull(client):
         "/update_policy",
         json={
             "bucket": "my-get-version-bucket-write_local",
-            "put_policy": "copy_on_read",
+            "put_policy": "always_store",
         },
     )
     resp.raise_for_status()
@@ -993,7 +993,7 @@ def test_write_back(client):
         "/update_policy",
         json={
             "bucket": "my-writeback-version-bucket",
-            "put_policy": "copy_on_read",
+            "put_policy": "always_store",
         },
     )
     resp.raise_for_status()

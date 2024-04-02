@@ -83,18 +83,6 @@ async fn main() {
 
     let proxy = SkyProxy::new(config).await;
 
-    // let proxy = SkyProxy::new(
-    //     init_regions,
-    //     client_from_region,
-    //     local_run,
-    //     local_server,
-    //     (get_policy, put_policy),
-    //     skystore_bucket_prefix,
-    //     version_enable,
-    //     server_addr,
-    // )
-    // .await;
-
     // Setup S3 service
     // TODO: Add auth and configure virtual-host style domain
     // https://github.com/Nugine/s3s/blob/b0b6878dafee0e08a876bec5239425fc40c01271/crates/s3s-fs/src/main.rs#L58-L66
@@ -137,10 +125,18 @@ async fn main() {
         .service_fn(move |mut req: hyper::Request<hyper::Body>| {
             let mut s3_service = s3_service.clone();
             let proxy_clone = proxy.clone();
-            if env::var("PUT_POLICY").unwrap() == "copy_on_read" {
+
+            if get_policy == "always_store"
+                || get_policy == "tevict"
+                || get_policy == "optimal"
+                || get_policy == "teven"
+                || get_policy == "fixedttl"
+                || get_policy == "ewma"
+            {
                 req.headers_mut()
-                    .insert("X-SKYSTORE-PULL", "copy_on_read".parse().unwrap());
+                    .insert("X-SKYSTORE-PULL", get_policy.parse().unwrap());
             }
+
             if req.uri().path() == "/_/warmup_object" {
                 let fut = async move {
                     if let Ok(body) = hyper::body::to_bytes(req.into_body()).await {

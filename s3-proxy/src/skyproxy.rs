@@ -738,40 +738,11 @@ impl S3 for SkyProxy {
         Ok(head_object_response)
     }
 
-    // #[tracing::instrument(level = "info")]
-    // async fn get_object(
-    //     &self,
-    //     req: S3Request<GetObjectInput>,
-    // ) -> S3Result<S3Response<GetObjectOutput>> {
-    //     let locator = self
-    //         .locate_object(req.input.bucket.clone(), req.input.key.clone())
-    //         .await?;
-
-    //     match locator {
-    //         Some(location) => {
-    //             self.store_clients
-    //                 .get(&location.tag)
-    //                 .unwrap()
-    //                 .get_object(req.map_input(|mut input: GetObjectInput| {
-    //                     input.bucket = location.bucket;
-    //                     input.key = location.key;
-    //                     input
-    //                 }))
-    //                 .await
-    //         }
-    //         None => Err(s3s::S3Error::with_message(
-    //             s3s::S3ErrorCode::NoSuchKey,
-    //             "Object not found",
-    //         )),
-    //     }
-    // }
-
     #[tracing::instrument(level = "info")]
     async fn get_object(
         &self,
         req: S3Request<GetObjectInput>,
     ) -> S3Result<S3Response<GetObjectOutput>> {
-        let start_time = Instant::now();
         let bucket = req.input.bucket.clone();
         let key = req.input.key.clone();
         let vid = req
@@ -780,17 +751,12 @@ impl S3 for SkyProxy {
             .clone()
             .map(|id| id.parse::<i32>().unwrap());
 
-        let start_cp_time = Instant::now();
-
         let locator = self.locate_object(bucket.clone(), key.clone(), vid).await?;
-
-        let duration_cp = start_cp_time.elapsed().as_secs_f32();
-
-        let key_clone = key.clone();
 
         match locator {
             Some(location) => {
                 if req.headers.get("X-SKYSTORE-PULL").is_some() {
+                    // Pull the object from the remote store if the object is not in the local store
                     if location.tag != self.client_from_region {
                         let get_resp = self
                             .store_clients
@@ -829,9 +795,9 @@ impl S3 for SkyProxy {
                             .await;
 
                             // When version setting is NULL:
-                            // In case of multi-concurrent GET request with copy_on_read policy,
-                            // only upload if start_upload returns successful, this indicates that the object is not in the local object store
-                            // status neither pending nor ready
+                            //  In case of multi-concurrent GET request with copy_on_read policy,
+                            //  Only upload if start_upload returns successful, this indicates that the object is not in the local object store
+                            //  Status neither pending nor ready
                             if let Ok(start_upload_resp) = start_upload_resp_result {
                                 let locators = start_upload_resp.locators;
                                 let request_template = clone_put_object_request(
@@ -878,30 +844,6 @@ impl S3 for SkyProxy {
                                     )
                                     .await
                                     .unwrap();
-
-                                    // let put_latency = start_time.elapsed().as_secs_f32();
-                                    // let system_time: SystemTime = Utc::now().into();
-                                    // let timestamp: s3s::dto::Timestamp = system_time.into();
-
-                                    // // build the metrics struct
-                                    // let metrics = OpMetrics {
-                                    //     timestamp: timestamp_to_string(timestamp),
-                                    //     latency: put_latency,
-                                    //     request_region: client_from_region,
-                                    //     destination_region: locator.tag.clone(),
-                                    //     key: key,
-                                    //     size: head_resp.output.content_length as u64,
-                                    //     op: "PUT".to_string(),
-                                    // };
-
-                                    // // Serialize the instance to a JSON string.
-                                    // let serialized_metrics = serde_json::to_string(&metrics).unwrap();
-
-                                    // let res = write_metrics_to_file(serialized_metrics, "metrics.json");
-
-                                    // if let Err(e) = res {
-                                    //     panic!("Error writing metrics to file: {}", e);
-                                    // }
                                 }
                             }
                         });
@@ -918,30 +860,6 @@ impl S3 for SkyProxy {
                             ..Default::default()
                         });
 
-                        // let get_latency = start_time.elapsed().as_secs_f32();
-                        // let system_time: SystemTime = Utc::now().into();
-                        // let timestamp: s3s::dto::Timestamp = system_time.into();
-
-                        // // build the metrics struct
-                        // let metrics = OpMetrics {
-                        //     timestamp: timestamp_to_string(timestamp),
-                        //     latency: get_latency,
-                        //     request_region: client_from_region,
-                        //     destination_region: location.tag.clone(),
-                        //     key: key_clone,
-                        //     size: get_resp.output.content_length as u64,
-                        //     op: "GET".to_string(),
-                        // };
-
-                        // // Serialize the instance to a JSON string.
-                        // let serialized_metrics = serde_json::to_string(&metrics).unwrap();
-
-                        // let res = write_metrics_to_file(serialized_metrics, "metrics.json");
-
-                        // if let Err(e) = res {
-                        //     panic!("Error writing metrics to file: {}", e);
-                        // }
-
                         return Ok(response);
                     } else {
                         let mut res = self
@@ -957,6 +875,7 @@ impl S3 for SkyProxy {
                             .await?;
 
                         let blob = res.output.body.unwrap();
+
                         // blob impl Stream
                         // read all bytes from blob
                         let collected_blob = blob
@@ -970,33 +889,10 @@ impl S3 for SkyProxy {
                         res.output.body = new_body;
                         res.output.version_id = vid.map(|id| id.to_string()); // logical version
 
-                        // let get_latency = start_time.elapsed().as_secs_f32();
-                        // let system_time: SystemTime = Utc::now().into();
-                        // let timestamp: s3s::dto::Timestamp = system_time.into();
-
-                        // // build the metrics struct
-                        // let metrics = OpMetrics {
-                        //     timestamp: timestamp_to_string(timestamp),
-                        //     latency: get_latency,
-                        //     request_region: client_from_region,
-                        //     destination_region: location.tag.clone(),
-                        //     key: key_clone,
-                        //     size: res.output.content_length as u64,
-                        //     op: "GET".to_string(),
-                        // };
-
-                        // // Serialize the instance to a JSON string.
-                        // let serialized_metrics = serde_json::to_string(&metrics).unwrap();
-
-                        // let write_res = write_metrics_to_file(serialized_metrics, "metrics.json");
-
-                        // if let Err(e) = write_res {
-                        //     panic!("Error writing metrics to file: {}", e);
-                        // }
-
                         return Ok(res);
                     }
                 } else {
+                    // NOTE: store nothing policy 
                     let mut res = self
                         .store_clients
                         .get(&location.tag)
@@ -1022,46 +918,6 @@ impl S3 for SkyProxy {
                     let new_body = Some(StreamingBlob::from(Body::from(collected_blob)));
                     res.output.body = new_body;
                     res.output.version_id = vid.map(|id| id.to_string()); // logical version
-
-                    // let get_latency = start_time.elapsed().as_secs_f32();
-                    // let system_time: SystemTime = Utc::now().into();
-                    // let timestamp: s3s::dto::Timestamp = system_time.into();
-
-                    // // build the metrics struct
-                    // let metrics = OpMetrics {
-                    //     timestamp: timestamp_to_string(timestamp),
-                    //     latency: get_latency,
-                    //     request_region: client_from_region,
-                    //     destination_region: location.tag.clone(),
-                    //     key: key_clone,
-                    //     size: res.output.content_length as u64,
-                    //     op: "GET".to_string(),
-                    // };
-
-                    // // Serialize the instance to a JSON string.
-                    // let serialized_metrics = serde_json::to_string(&metrics).unwrap();
-
-                    // let write_res = write_metrics_to_file(serialized_metrics, "metrics.json");
-
-                    // if let Err(e) = write_res {
-                    //     panic!("Error writing metrics to file: {}", e);
-                    // }
-
-                    let duration = start_time.elapsed().as_secs_f32();
-
-                    // write to the local file
-                    let metrics = SimpleMetrics {
-                        latency: duration_cp.to_string() + "," + &duration.to_string(),
-                        key: key_clone,
-                        size: res.output.content_length as u64,
-                        op: "GET".to_string(),
-                    };
-
-                    let _ = write_metrics_to_file(
-                        serde_json::to_string(&metrics).unwrap(),
-                        "metrics.json",
-                    );
-
                     return Ok(res);
                 }
             }

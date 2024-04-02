@@ -94,7 +94,7 @@ class PushonWrite(PlacementPolicy):
         return "push"
 
 
-class PullOnRead(PlacementPolicy):
+class AlwaysStore(PlacementPolicy):
     """
     Write local, and pull on read if data is not available locally
     """
@@ -110,7 +110,7 @@ class PullOnRead(PlacementPolicy):
         return [req.client_from_region]
 
     def name(self) -> str:
-        return "copy_on_read"
+        return "always_store"
 
 
 class LocalWrite(PlacementPolicy):
@@ -138,8 +138,8 @@ def get_placement_policy(name: str, init_regions: List[str]) -> PlacementPolicy:
         return ReplicateAll(init_regions)
     elif name == "push":
         return PushonWrite(init_regions)
-    elif name == "copy_on_read":
-        return PullOnRead(init_regions)
+    elif name == "always_store":
+        return AlwaysStore(init_regions)
     elif name == "write_local":
         return LocalWrite(init_regions)
     else:

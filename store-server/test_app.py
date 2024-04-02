@@ -746,7 +746,7 @@ def test_write_back(client):
         json={
             "bucket": "my-writeback-bucket",
             "get_policy": "closest",
-            "put_policy": "copy_on_read",
+            "put_policy": "always_store",
         },
     )
     resp.raise_for_status()
