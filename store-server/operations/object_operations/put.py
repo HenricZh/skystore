@@ -16,7 +16,7 @@ from operations.utils.db import get_session, logger
 from operations.utils.helper import create_logical_object
 from datetime import datetime
 from itertools import chain
-from operations.policy.placement_policy import get_placement_policy
+from operations.policy.placement_policy.get_placement import get_placement_policy
 from operations.utils.helper import init_region_tags
 from operations.utils.helper import policy_ultra_dict
 
@@ -390,8 +390,8 @@ async def complete_upload(
             (policy_name == "push" or policy_name == "replicate_all")
             and physical_locator.is_primary
         )
-        or policy_name == "write_local"
         or policy_name == "always_store"
+        or policy_name == "always_evict"
         or policy_name == "single_region"
     ):
         # NOTE: might not need to update the logical object for consecutive reads for copy_on_read

@@ -11,7 +11,7 @@ from sqlalchemy import and_
 from operations.utils.conf import Status
 from fastapi import APIRouter, Response, Depends, status
 from operations.utils.db import get_session, logger
-from operations.policy.transfer_policy import get_transfer_policy
+from operations.policy.transfer_policy.get_transfer import get_transfer_policy
 from operations.utils.helper import policy_ultra_dict
 
 router = APIRouter()

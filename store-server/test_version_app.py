@@ -645,7 +645,7 @@ def test_get_object_write_local_and_pull(client):
         "/update_policy",
         json={
             "bucket": "my-get-version-bucket-write_local",
-            "put_policy": "write_local",
+            "put_policy": "always_evict",
         },
     )
 
@@ -657,7 +657,7 @@ def test_get_object_write_local_and_pull(client):
             "key": "my-key-write_local",
             "client_from_region": "aws:us-east-1",
             "is_multipart": False,
-            "policy": "write_local",  # write local policy
+            "policy": "always_evict",  # write local policy, no pull on read
         },
     )
     resp.raise_for_status()
@@ -670,7 +670,7 @@ def test_get_object_write_local_and_pull(client):
                 "size": 100,
                 "etag": "123",
                 "last_modified": "2020-01-01T00:00:00",
-                "policy": "write_local",  # write local policy
+                "policy": "always_evict",  # write local policy, no pull on read
             },
         ).raise_for_status()
 
@@ -700,7 +700,7 @@ def test_get_object_write_local_and_pull(client):
         "version": 1,  # NOTE: If you run this test separately, this version number will be different
     }
 
-    # Try copy_on_read policy, first write to the primary region
+    # First write to the primary region
     resp = client.post(
         "/start_upload",
         json={
@@ -708,7 +708,7 @@ def test_get_object_write_local_and_pull(client):
             "key": "my-key-write_local",
             "client_from_region": "aws:us-west-1",
             "is_multipart": False,
-            "policy": "write_local",  # write local policy
+            "policy": "always_evict",  # write local policy
         },
     )
     resp.raise_for_status()
@@ -721,7 +721,7 @@ def test_get_object_write_local_and_pull(client):
                 "size": 100,
                 "etag": "123",
                 "last_modified": "2020-01-01T00:00:00",
-                "policy": "write_local",  # write local policy
+                "policy": "always_evict",
             },
         ).raise_for_status()
 

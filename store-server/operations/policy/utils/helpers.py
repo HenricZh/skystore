@@ -3,7 +3,7 @@ import pandas as pd
 import networkx as nx
 from ..model.config import Config
 import os
-import ast
+import json
 from ..utils.definitions import (
     aws_instance_throughput_limit,
     gcp_instance_throughput_limit,
@@ -40,7 +40,13 @@ def load_profile(file_name: str):
     return pd.read_csv(f"src/profiles/{file_name}")
 
 
-def make_nx_graph(cost_path=None, throughput_path=None, latency_path=None, storage_cost_path=None, num_vms=1):
+def make_nx_graph(
+    cost_path=None,
+    throughput_path=None,
+    latency_path=None,
+    storage_cost_path=None,
+    num_vms=1,
+):
     """
     Default graph with capacity constraints and cost info
     nodes: regions, edges: links
@@ -76,11 +82,16 @@ def make_nx_graph(cost_path=None, throughput_path=None, latency_path=None, stora
     for _, row in throughput.iterrows():
         if row["src_region"] == row["dst_region"]:
             continue
-        G.add_edge(row["src_region"], row["dst_region"], cost=None, throughput=num_vms * row["throughput_sent"] / 1e9)
+        G.add_edge(
+            row["src_region"],
+            row["dst_region"],
+            cost=None,
+            throughput=num_vms * row["throughput_sent"] / 1e9,
+        )
 
     # just keep aws nodes and edges
-    aws_nodes = [node for node in G.nodes if node.startswith("aws")]
-    G = G.subgraph(aws_nodes).copy()
+    # aws_nodes = [node for node in G.nodes if node.startswith("aws")]
+    # G = G.subgraph(aws_nodes).copy()
 
     for _, row in cost.iterrows():
         if row["src"] in G and row["dest"] in G[row["src"]]:
@@ -98,7 +109,9 @@ def make_nx_graph(cost_path=None, throughput_path=None, latency_path=None, stora
     for _, row in storage.iterrows():
         region = row["Vendor"] + ":" + row["Region"]
         if region in G:
-            if row["Group"] == "storage" and (row["Tier"] == "General Purpose" or row["Tier"] == "Hot"):
+            if row["Group"] == "storage" and (
+                row["Tier"] == "General Purpose" or row["Tier"] == "Hot"
+            ):
                 G.nodes[region]["priceStorage"] = row["PricePerUnit"]
         else:
             no_storage_cost.add(region)
@@ -121,7 +134,9 @@ def make_nx_graph(cost_path=None, throughput_path=None, latency_path=None, stora
                 else azure_instance_throughput_limit[1]
             )
             # read from local storage, temp set to 0.7 for now
-            G.add_edge(node, node, cost=0, throughput=num_vms * ingress_limit, latency=0.70)
+            G.add_edge(
+                node, node, cost=0, throughput=num_vms * ingress_limit, latency=0.70
+            )
 
     for src, destinations in latency.items():
         for dst, latency_value in destinations.items():

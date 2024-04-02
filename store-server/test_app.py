@@ -540,7 +540,7 @@ def test_get_object_pull_logic(client):
         "/update_policy",
         json={
             "bucket": "my-get-bucket-write_local",
-            "put_policy": "write_local",
+            "put_policy": "always_store",
             "get_policy": "closest",
         },
     )

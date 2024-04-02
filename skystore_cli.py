@@ -28,8 +28,6 @@ class GetPolicy(str, Enum):
 
 class PutPolicy(str, Enum):
     always_store = "always_store"
-    # read = "read"
-    write_local = "write_local"
     push = "push"
     replicate_all = "replicate_all"
     single_region = "single_region"
