@@ -56,6 +56,8 @@ pub mod location_inner;
 pub use self::location_inner::LocationInner;
 pub mod logical_part_response;
 pub use self::logical_part_response::LogicalPartResponse;
+pub mod metrics;
+pub use self::metrics::Metrics;
 pub mod multipart_response;
 pub use self::multipart_response::MultipartResponse;
 pub mod object_response;

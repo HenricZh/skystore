@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **key** | **String** |  | 
 **client_from_region** | **String** |  | 
 **version_id** | Option<**i32**> |  | [optional]
+**ttl** | Option<**i32**> |  | [optional]
 **is_multipart** | **bool** |  | 
 **copy_src_bucket** | Option<**String**> |  | [optional]
 **copy_src_key** | Option<**String**> |  | [optional]

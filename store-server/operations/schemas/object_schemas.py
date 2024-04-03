@@ -49,7 +49,7 @@ class DBLogicalObject(Base):
     )
 
     # NOTE: Eviction related fields
-    # base_region = Column(String, nullable=True, default=None)
+    base_region = Column(String, nullable=True, default=None)
 
     # Add relationship to physical object
     physical_object_locators = relationship(
@@ -87,6 +87,8 @@ class DBPhysicalObjectLocator(Base):
     key = Column(String)
     lock_acquired_ts = Column(DateTime, nullable=True, default=None)
     status = Column(Enum(Status))
+
+    # NOTE: is_primary denotes the base region of the object
     is_primary = Column(Boolean, nullable=False, default=False)
 
     version_id = Column(String)  # mimic the type and name of the field in S3
@@ -100,10 +102,10 @@ class DBPhysicalObjectLocator(Base):
 
     # NOTE: Eviction related fields
     # TTL in seconds
-    # ttl = Column(Integer, nullable=True, default=None)
+    ttl = Column(Integer, nullable=True, default=None)
 
     # Storage start time
-    # storage_start_time = Column(DateTime, nullable=True, default=None)
+    storage_start_time = Column(DateTime, nullable=True, default=None)
 
     # Add relationship to logical object
     logical_object_id = Column(
@@ -128,6 +130,7 @@ class LocateObjectRequest(BaseModel):
     key: str
     client_from_region: str
     version_id: Optional[int] = None
+    ttl: Optional[int] = None
 
 
 class LocateObjectResponse(BaseModel):
@@ -144,6 +147,8 @@ class LocateObjectResponse(BaseModel):
     last_modified: Optional[datetime] = None
     etag: Optional[str] = None
     multipart_upload_id: Optional[str] = None
+
+    ttl: Optional[int] = None  # TTL you should set for the object (depends on policy)
 
 
 class DBLogicalMultipartUploadPart(Base):
@@ -198,6 +203,7 @@ class StartUploadRequest(LocateObjectRequest):
     # NOTE: for future, consider whether the bucket is needed here. Should we only do intra-bucket copy?
     copy_src_bucket: Optional[str] = None
     copy_src_key: Optional[str] = None
+    ttl: Optional[int] = None
 
 
 class StartUploadResponse(BaseModel):

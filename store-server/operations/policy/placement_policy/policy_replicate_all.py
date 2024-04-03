@@ -25,3 +25,8 @@ class ReplicateAll(PlacementPolicy):
 
     def name(self) -> str:
         return "replicate_all"
+
+    def get_ttl(
+        self, src: str = None, dst: str = None, fixed_base_region: bool = False
+    ) -> int:
+        return -1  # -1 means store forever

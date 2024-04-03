@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **last_modified** | Option<**String**> |  | [optional]
 **etag** | Option<**String**> |  | [optional]
 **multipart_upload_id** | Option<**String**> |  | [optional]
+**ttl** | Option<**i32**> |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -1,0 +1,75 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.9.12, pytest-7.1.1, pluggy-1.0.0 -- /opt/homebrew/anaconda3/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/shuL/Desktop/skystore/store-server
+plugins: anyio-3.5.0, asyncio-0.23.6
+asyncio: mode=strict
+collecting ... [19:11:24] INFO     [19:11:24] numexpr.utils utils.py:159 - NumExpr defaulting to 8 threads.                                                                                        utils.py:159
+collected 2 items
+
+test_app.py::test_remove_db Database still creating, waiting for 5 seconds...
+Database still creating, waiting for 5 seconds...
+Database still creating, waiting for 5 seconds...
+Database creation TIMEOUT! Exiting...
+Database skystore does not exist. Creating...
+Database skystore created successfully.
+PASSED
+test_app.py::test_delete_object [19:11:40] INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: POST http://testserver/start_create_bucket "HTTP/1.1 200 OK"                                                _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_create_bucket "HTTP/1.1 200 OK"                                            _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_create_bucket "HTTP/1.1 200 OK"                                            _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_create_bucket "HTTP/1.1 200 OK"                                            _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_create_bucket "HTTP/1.1 200 OK"                                            _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_create_bucket "HTTP/1.1 200 OK"                                            _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_create_bucket "HTTP/1.1 200 OK"                                            _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: POST http://testserver/update_policy "HTTP/1.1 200 OK"                                                      _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: POST http://testserver/start_upload "HTTP/1.1 200 OK"                                                       _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_upload "HTTP/1.1 200 OK"                                                   _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_upload "HTTP/1.1 200 OK"                                                   _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: POST http://testserver/list_objects "HTTP/1.1 200 OK"                                                       _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: POST http://testserver/start_delete_objects "HTTP/1.1 200 OK"                                               _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_delete_objects "HTTP/1.1 200 OK"                                           _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: PATCH http://testserver/complete_delete_objects "HTTP/1.1 200 OK"                                           _client.py:1026
+           INFO     [19:11:40] httpx _client.py:1026 - HTTP Request: POST http://testserver/list_objects "HTTP/1.1 200 OK"                                                       _client.py:1026
+PASSED
+
+=============================== warnings summary ===============================
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754
+  /opt/homebrew/anaconda3/lib/python3.9/site-packages/pydantic/fields.py:754: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'minimum', 'format'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.6/migration/
+    warn(
+
+app.py:146
+  /Users/shuL/Desktop/skystore/store-server/app.py:146: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/fastapi/applications.py:4495
+../../../../../opt/homebrew/anaconda3/lib/python3.9/site-packages/fastapi/applications.py:4495
+  /opt/homebrew/anaconda3/lib/python3.9/site-packages/fastapi/applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+app.py:153
+  /Users/shuL/Desktop/skystore/store-server/app.py:153: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 2 passed, 11 warnings in 24.66s ========================

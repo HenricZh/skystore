@@ -283,6 +283,7 @@ impl SkyProxy {
                 key,
                 client_from_region: self.client_from_region.clone(),
                 version_id,
+                ttl: None,
             },
         )
         .await;
@@ -652,6 +653,7 @@ impl S3 for SkyProxy {
                     client_from_region: self.client_from_region.clone(),
                     version_id: vid, // logical version
                     warmup_regions,
+                    ttl: None,
                 },
             )
             .await
@@ -774,6 +776,7 @@ impl S3 for SkyProxy {
                         let dir_conf_clone = self.dir_conf.clone();
                         let client_from_region_clone = self.client_from_region.clone();
                         let store_clients_clone = self.store_clients.clone();
+                        let ttl = location.ttl;
 
                         let (mut input_blobs, _) = split_streaming_blob(data, 2); // locators.len() + 1
                         let response_blob = input_blobs.pop();
@@ -790,6 +793,7 @@ impl S3 for SkyProxy {
                                     is_multipart: false,
                                     copy_src_bucket: None,
                                     copy_src_key: None,
+                                    ttl: ttl,
                                 },
                             )
                             .await;
@@ -862,6 +866,7 @@ impl S3 for SkyProxy {
 
                         return Ok(response);
                     } else {
+                        // If the object is in the local store, return it directly
                         let mut res = self
                             .store_clients
                             .get(&self.client_from_region)
@@ -892,7 +897,7 @@ impl S3 for SkyProxy {
                         return Ok(res);
                     }
                 } else {
-                    // NOTE: store nothing policy 
+                    // Pure get, basically store nothing policy
                     let mut res = self
                         .store_clients
                         .get(&location.tag)
@@ -962,6 +967,7 @@ impl S3 for SkyProxy {
                 is_multipart: false,
                 copy_src_bucket: None,
                 copy_src_key: None,
+                ttl: None,
             },
         )
         .await
@@ -1565,6 +1571,7 @@ impl S3 for SkyProxy {
                 is_multipart: false,
                 copy_src_bucket: Some(src_bucket.to_string()),
                 copy_src_key: Some(src_key.to_string()),
+                ttl: None, // For copy, just set to None
             },
         )
         .await
@@ -1671,6 +1678,7 @@ impl S3 for SkyProxy {
                 is_multipart: true,
                 copy_src_bucket: None,
                 copy_src_key: None,
+                ttl: None, // For multipart upload, just set to None
             },
         )
         .await
@@ -1861,6 +1869,7 @@ impl S3 for SkyProxy {
                 do_list_parts: Some(false),
                 copy_src_bucket: None,
                 copy_src_key: None,
+                ttl: None,
             },
         )
         .await
@@ -1996,6 +2005,7 @@ impl S3 for SkyProxy {
                 do_list_parts: Some(false),
                 copy_src_bucket: Some(src_bucket.clone()),
                 copy_src_key: Some(src_key.clone()),
+                ttl: None,
             },
         )
         .await
@@ -2082,6 +2092,7 @@ impl S3 for SkyProxy {
                 do_list_parts: Some(true),
                 copy_src_bucket: None,
                 copy_src_key: None,
+                ttl: None,
             },
         )
         .await

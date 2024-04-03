@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**locators** | [**Vec<crate::models::LocateObjectResponse>**](LocateObjectResponse.md) |  | 
+**locators** | [**Vec<models::LocateObjectResponse>**](LocateObjectResponse.md) |  | 
 **multipart_upload_id** | Option<**String**> |  | [optional]
 **copy_src_buckets** | **Vec<String>** |  | 
 **copy_src_keys** | **Vec<String>** |  | 

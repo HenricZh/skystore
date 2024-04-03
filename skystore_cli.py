@@ -28,6 +28,11 @@ class GetPolicy(str, Enum):
 
 class PutPolicy(str, Enum):
     always_store = "always_store"
+    always_evict = "always_evict"
+    fixed_ttl = "fixed_ttl"
+    t_even = "t_even"
+    t_evict = "t_evict"
+    
     push = "push"
     replicate_all = "replicate_all"
     single_region = "single_region"
@@ -57,7 +62,7 @@ def init(
         GetPolicy.cheapest, "--get_policy", help="Policy to use for data transfer"
     ),
     put_policy: PutPolicy = typer.Option(
-        PutPolicy.write_local, "--put_policy", help="Policy to use for data placement"
+        PutPolicy.always_store, "--put_policy", help="Policy to use for data placement"
     ),
     enable_version: Version = typer.Option(
         Version.enable, "--version", help="Whether to enable the version or not"

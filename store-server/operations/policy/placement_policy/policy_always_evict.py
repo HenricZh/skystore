@@ -20,3 +20,8 @@ class AlwaysEvict(PlacementPolicy):
 
     def name(self) -> str:
         return "always_evict"
+
+    def get_ttl(
+        self, src: str = None, dst: str = None, fixed_base_region: bool = False
+    ) -> int:
+        return 0

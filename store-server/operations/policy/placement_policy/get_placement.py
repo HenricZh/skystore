@@ -3,9 +3,15 @@ from operations.policy.placement_policy.policy_single_region import SingleRegion
 from operations.policy.placement_policy.policy_push_on_write import PushonWrite
 from operations.policy.placement_policy.policy_always_store import AlwaysStore
 from operations.policy.placement_policy.policy_always_evict import AlwaysEvict
+from operations.policy.placement_policy.policy_teven import Teven
+from operations.policy.placement_policy.policy_fixed_ttl import FixedTTL
 from operations.policy.placement_policy.base import PlacementPolicy
 
 from typing import List
+
+
+def eviction_policies() -> List[str]:
+    return ["always_evict", "always_store", "fixed_ttl", "t_even"]
 
 
 def get_placement_policy(name: str, init_regions: List[str]) -> PlacementPolicy:
@@ -19,5 +25,9 @@ def get_placement_policy(name: str, init_regions: List[str]) -> PlacementPolicy:
         return AlwaysStore(init_regions)
     elif name == "always_evict":
         return AlwaysEvict(init_regions)
+    elif name == "t_even":
+        return Teven(init_regions)
+    elif name == "fixed_ttl":
+        return FixedTTL(init_regions)
     else:
         raise ValueError(f"Unknown policy name: {name}")

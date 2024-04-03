@@ -31,6 +31,7 @@ Method | HTTP request | Description
 [**start_delete_objects**](DefaultApi.md#start_delete_objects) | **POST** /start_delete_objects | Start Delete Objects
 [**start_upload**](DefaultApi.md#start_upload) | **POST** /start_upload | Start Upload
 [**start_warmup**](DefaultApi.md#start_warmup) | **POST** /start_warmup | Start Warmup
+[**update_metrics**](DefaultApi.md#update_metrics) | **POST** /update_metrics | Update Metrics
 [**update_policy**](DefaultApi.md#update_policy) | **POST** /update_policy | Update Policy
 
 
@@ -205,7 +206,7 @@ No authorization required
 
 ## continue_upload
 
-> Vec<crate::models::ContinueUploadResponse> continue_upload(continue_upload_request)
+> Vec<models::ContinueUploadResponse> continue_upload(continue_upload_request)
 Continue Upload
 
 ### Parameters
@@ -217,7 +218,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<crate::models::ContinueUploadResponse>**](ContinueUploadResponse.md)
+[**Vec<models::ContinueUploadResponse>**](ContinueUploadResponse.md)
 
 ### Authorization
 
@@ -261,7 +262,7 @@ No authorization required
 
 ## head_object
 
-> crate::models::HeadObjectResponse head_object(head_object_request)
+> models::HeadObjectResponse head_object(head_object_request)
 Head Object
 
 ### Parameters
@@ -273,7 +274,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::HeadObjectResponse**](HeadObjectResponse.md)
+[**models::HeadObjectResponse**](HeadObjectResponse.md)
 
 ### Authorization
 
@@ -289,7 +290,7 @@ No authorization required
 
 ## healthz
 
-> crate::models::HealthcheckResponse healthz()
+> models::HealthcheckResponse healthz()
 Healthz
 
 ### Parameters
@@ -298,7 +299,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**crate::models::HealthcheckResponse**](HealthcheckResponse.md)
+[**models::HealthcheckResponse**](HealthcheckResponse.md)
 
 ### Authorization
 
@@ -314,7 +315,7 @@ No authorization required
 
 ## list_buckets
 
-> Vec<crate::models::BucketResponse> list_buckets()
+> Vec<models::BucketResponse> list_buckets()
 List Buckets
 
 ### Parameters
@@ -323,7 +324,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Vec<crate::models::BucketResponse>**](BucketResponse.md)
+[**Vec<models::BucketResponse>**](BucketResponse.md)
 
 ### Authorization
 
@@ -339,7 +340,7 @@ No authorization required
 
 ## list_multipart_uploads
 
-> Vec<crate::models::MultipartResponse> list_multipart_uploads(list_object_request)
+> Vec<models::MultipartResponse> list_multipart_uploads(list_object_request)
 List Multipart Uploads
 
 ### Parameters
@@ -351,7 +352,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<crate::models::MultipartResponse>**](MultipartResponse.md)
+[**Vec<models::MultipartResponse>**](MultipartResponse.md)
 
 ### Authorization
 
@@ -367,7 +368,7 @@ No authorization required
 
 ## list_objects
 
-> Vec<crate::models::ObjectResponse> list_objects(list_object_request)
+> Vec<models::ObjectResponse> list_objects(list_object_request)
 List Objects
 
 ### Parameters
@@ -379,7 +380,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<crate::models::ObjectResponse>**](ObjectResponse.md)
+[**Vec<models::ObjectResponse>**](ObjectResponse.md)
 
 ### Authorization
 
@@ -395,7 +396,7 @@ No authorization required
 
 ## list_objects_versioning
 
-> Vec<crate::models::ObjectResponse> list_objects_versioning(list_object_request)
+> Vec<models::ObjectResponse> list_objects_versioning(list_object_request)
 List Objects Versioning
 
 ### Parameters
@@ -407,7 +408,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<crate::models::ObjectResponse>**](ObjectResponse.md)
+[**Vec<models::ObjectResponse>**](ObjectResponse.md)
 
 ### Authorization
 
@@ -423,7 +424,7 @@ No authorization required
 
 ## list_parts
 
-> Vec<crate::models::LogicalPartResponse> list_parts(list_parts_request)
+> Vec<models::LogicalPartResponse> list_parts(list_parts_request)
 List Parts
 
 ### Parameters
@@ -435,7 +436,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<crate::models::LogicalPartResponse>**](LogicalPartResponse.md)
+[**Vec<models::LogicalPartResponse>**](LogicalPartResponse.md)
 
 ### Authorization
 
@@ -451,7 +452,7 @@ No authorization required
 
 ## locate_bucket
 
-> crate::models::LocateBucketResponse locate_bucket(locate_bucket_request)
+> models::LocateBucketResponse locate_bucket(locate_bucket_request)
 Locate Bucket
 
 Given the bucket name, return one or zero physical bucket locators.
@@ -465,7 +466,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::LocateBucketResponse**](LocateBucketResponse.md)
+[**models::LocateBucketResponse**](LocateBucketResponse.md)
 
 ### Authorization
 
@@ -481,7 +482,7 @@ No authorization required
 
 ## locate_bucket_status
 
-> crate::models::BucketStatus locate_bucket_status(locate_bucket_request)
+> models::BucketStatus locate_bucket_status(locate_bucket_request)
 Locate Bucket Status
 
 Given the bucket name, return physical bucket status. Currently only used for testing metadata cleanup
@@ -495,7 +496,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::BucketStatus**](BucketStatus.md)
+[**models::BucketStatus**](BucketStatus.md)
 
 ### Authorization
 
@@ -511,7 +512,7 @@ No authorization required
 
 ## locate_object
 
-> crate::models::LocateObjectResponse locate_object(locate_object_request)
+> models::LocateObjectResponse locate_object(locate_object_request)
 Locate Object
 
 Given the logical object information, return one or zero physical object locators.
@@ -525,7 +526,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::LocateObjectResponse**](LocateObjectResponse.md)
+[**models::LocateObjectResponse**](LocateObjectResponse.md)
 
 ### Authorization
 
@@ -541,7 +542,7 @@ No authorization required
 
 ## locate_object_status
 
-> Vec<crate::models::ObjectStatus> locate_object_status(locate_object_request)
+> Vec<models::ObjectStatus> locate_object_status(locate_object_request)
 Locate Object Status
 
 Given the logical object information, return the status of the object. Currently only used for testing metadata cleanup.
@@ -555,7 +556,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<crate::models::ObjectStatus>**](ObjectStatus.md)
+[**Vec<models::ObjectStatus>**](ObjectStatus.md)
 
 ### Authorization
 
@@ -571,7 +572,7 @@ No authorization required
 
 ## put_bucket_versioning
 
-> Vec<crate::models::LocateBucketResponse> put_bucket_versioning(put_bucket_versioning_request)
+> Vec<models::LocateBucketResponse> put_bucket_versioning(put_bucket_versioning_request)
 Put Bucket Versioning
 
 ### Parameters
@@ -583,7 +584,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<crate::models::LocateBucketResponse>**](LocateBucketResponse.md)
+[**Vec<models::LocateBucketResponse>**](LocateBucketResponse.md)
 
 ### Authorization
 
@@ -655,7 +656,7 @@ No authorization required
 
 ## start_create_bucket
 
-> crate::models::CreateBucketResponse start_create_bucket(create_bucket_request)
+> models::CreateBucketResponse start_create_bucket(create_bucket_request)
 Start Create Bucket
 
 ### Parameters
@@ -667,7 +668,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::CreateBucketResponse**](CreateBucketResponse.md)
+[**models::CreateBucketResponse**](CreateBucketResponse.md)
 
 ### Authorization
 
@@ -683,7 +684,7 @@ No authorization required
 
 ## start_delete_bucket
 
-> crate::models::DeleteBucketResponse start_delete_bucket(delete_bucket_request)
+> models::DeleteBucketResponse start_delete_bucket(delete_bucket_request)
 Start Delete Bucket
 
 ### Parameters
@@ -695,7 +696,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::DeleteBucketResponse**](DeleteBucketResponse.md)
+[**models::DeleteBucketResponse**](DeleteBucketResponse.md)
 
 ### Authorization
 
@@ -711,7 +712,7 @@ No authorization required
 
 ## start_delete_objects
 
-> crate::models::DeleteObjectsResponse start_delete_objects(delete_objects_request)
+> models::DeleteObjectsResponse start_delete_objects(delete_objects_request)
 Start Delete Objects
 
 ### Parameters
@@ -723,7 +724,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::DeleteObjectsResponse**](DeleteObjectsResponse.md)
+[**models::DeleteObjectsResponse**](DeleteObjectsResponse.md)
 
 ### Authorization
 
@@ -739,8 +740,10 @@ No authorization required
 
 ## start_upload
 
-> crate::models::StartUploadResponse start_upload(start_upload_request)
+> models::StartUploadResponse start_upload(start_upload_request)
 Start Upload
+
+Reference  # https://docs.aws.amazon.com/AmazonS3/latest/userguide/AddingObjectstoVersionSuspendedBuckets.html # https://docs.aws.amazon.com/AmazonS3/latest/userguide/AddingObjectstoVersioningEnabledBuckets.html  Two possible operations:  1. First Write: create new logical objects  2. Pull on Read: reuse existing logical objects  3. Copy: create new logical objects in dst locations
 
 ### Parameters
 
@@ -751,7 +754,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::StartUploadResponse**](StartUploadResponse.md)
+[**models::StartUploadResponse**](StartUploadResponse.md)
 
 ### Authorization
 
@@ -767,7 +770,7 @@ No authorization required
 
 ## start_warmup
 
-> crate::models::StartWarmupResponse start_warmup(start_warmup_request)
+> models::StartWarmupResponse start_warmup(start_warmup_request)
 Start Warmup
 
 Given the logical object information and warmup regions, return one or zero physical object locators.
@@ -781,7 +784,35 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::StartWarmupResponse**](StartWarmupResponse.md)
+[**models::StartWarmupResponse**](StartWarmupResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## update_metrics
+
+> serde_json::Value update_metrics(metrics)
+Update Metrics
+
+### Parameters
+
+
+Name | Type | Description  | Required | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+**metrics** | [**Metrics**](Metrics.md) |  | [required] |
+
+### Return type
+
+[**serde_json::Value**](serde_json::Value.md)
 
 ### Authorization
 
