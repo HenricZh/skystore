@@ -361,6 +361,14 @@ class SetPolicyRequest(BaseModel):
     put_policy: Optional[str] = None
 
 
+class CleanObjectRequest(BaseModel):
+    timestamp: datetime
+
+
+class CleanObjectResponse(BaseModel):
+    locators: List[LocateObjectResponse]
+
+
 class Metrics(BaseModel):
     timestamp: str
     latency: float

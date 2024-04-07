@@ -1214,7 +1214,7 @@ async def test_metadata_clean_up(client):
 
     # set minutes to 0 just to prevent stalling and set testing to True. Will bypass initial wait
     await rm_lock_on_timeout(0, test=True)
-    
+
     resp = client.post(
         "/locate_bucket_status",
         json={

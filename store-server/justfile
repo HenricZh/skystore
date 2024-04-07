@@ -23,6 +23,9 @@ run:
 test args='': clean
     pytest -v -s --show-capture=no . {{args}}
 
+test_ttl args='': clean
+    pytest -v -s --show-capture=no test_ttl.py {{args}}
+
 register-config:
     python register.py
 
