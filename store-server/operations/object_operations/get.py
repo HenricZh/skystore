@@ -14,6 +14,7 @@ from operations.utils.db import get_session, logger
 from operations.policy.transfer_policy.get_transfer import get_transfer_policy
 from operations.policy.placement_policy.get_placement import get_placement_policy
 from operations.utils.helper import policy_ultra_dict, init_region_tags
+from datetime import datetime
 
 router = APIRouter()
 
@@ -81,13 +82,18 @@ async def locate_object(
     )
 
     if request.ttl is not None:
-        object_ttl = request.ttl
+        dst_object_ttl = request.ttl
     else:
-        object_ttl = put_policy.get_ttl(
+        dst_object_ttl = put_policy.get_ttl(
             src=chosen_locator.region, dst=request.client_from_region
         )
 
-    # TODO: add logic of update GET TTL if in local region
+    # TODO: add logic of update GET TTL in local DB if in local region
+    # TODO (ask Henric): is this correct?
+    # Reset the storage start time to the current time
+    if chosen_locator.region == request.client_from_region and request.op == "GET":
+        # NOTE: still time gap until actually start to download
+        chosen_locator.storage_start_time = datetime.utcnow()
 
     return LocateObjectResponse(
         id=chosen_locator.id,
@@ -103,5 +109,5 @@ async def locate_object(
         if version_enabled is not None
         else None,  # here must use the physical version
         version=locators.id if version_enabled is not None else None,
-        ttl=object_ttl,  # Only for those eviction based policy: need to locate objects then put
+        ttl=dst_object_ttl,  # Only for those eviction based policy: need to locate objects then put
     )

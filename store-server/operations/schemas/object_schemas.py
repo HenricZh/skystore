@@ -131,6 +131,7 @@ class LocateObjectRequest(BaseModel):
     client_from_region: str
     version_id: Optional[int] = None
     ttl: Optional[int] = None
+    op: Optional[str] = None
 
 
 class LocateObjectResponse(BaseModel):
@@ -230,6 +231,7 @@ class PatchUploadIsCompleted(BaseModel):
     etag: str
     last_modified: datetime
     version_id: Optional[str] = None
+    ttl: Optional[int] = None
 
 
 class PatchUploadMultipartUploadId(BaseModel):

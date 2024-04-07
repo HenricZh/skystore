@@ -58,7 +58,7 @@ async def start_upload(
 
     version_enabled, logical_bucket = res
     if not version_enabled:
-        # NOTE: why?
+        # NOTE: two clients can't write to the same object at the same time
         await db.execute(text("LOCK TABLE logical_objects IN EXCLUSIVE MODE;"))
 
         if request.version_id:
@@ -87,12 +87,12 @@ async def start_upload(
         .order_by(DBLogicalObject.id.desc() if request.version_id is None else None)
         .options(joinedload(DBLogicalObject.physical_object_locators))
     )
-    # NOTE: Why get the first one?
+    # Get the latest version if version_id is not specified
     existing_object = (await db.scalars(existing_objects_stmt)).unique().first()
 
-    # If version specified, and copy / pull-on-read, 404 if src object does not exist
+    # If version specified, and this is copy or pull-on-read operation, 404 if src object does not exist
     if (
-        request.version_id  # NOTE: why check version_id
+        request.version_id
         and not existing_object
         and (request.copy_src_bucket is not None or put_policy.name() == "always_store")
     ):
@@ -303,7 +303,7 @@ async def start_upload(
                 )
             )
         else:
-            # TODO: Where does existing locators get add to the DB?
+            # TODO: Need to update the existing physical object locators in DB (lock, status, ttl, etc.)
             existing_locators.append(
                 DBPhysicalObjectLocator(
                     id=existing_tags[region_tag],
@@ -313,7 +313,7 @@ async def start_upload(
                     region=physical_bucket_locator.region,
                     bucket=physical_bucket_locator.bucket,
                     key=physical_bucket_locator.prefix + request.key,
-                    lock_acquired_ts=datetime.now(),
+                    lock_acquired_ts=datetime.utcnow(),
                     status=Status.pending,
                     is_primary=(
                         region_tag == primary_write_region
@@ -371,6 +371,9 @@ async def complete_upload(
     physical_locator.lock_acquired_ts = None
     physical_locator.version_id = request.version_id
     physical_locator.storage_start_time = request.last_modified.replace(tzinfo=None)
+
+    if request.ttl is not None:
+        physical_locator.ttl = request.ttl
 
     # TODO: might need to change the if conditions for different policies
     policy_name = put_policy.name()

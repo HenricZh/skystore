@@ -6,6 +6,8 @@ from sqlalchemy import select, update
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from operations.utils.conf import Base
+from sqlalchemy import select, delete
+
 from operations.schemas.object_schemas import (
     DBLogicalObject,
     DBPhysicalObjectLocator,
@@ -48,6 +50,45 @@ app.include_router(object_get_router)
 stop_task_flag = asyncio.Event()
 background_tasks = set()
 
+async def cleanup_expired_objects(curr_time: datetime):
+    async with engine.begin() as db:
+        logical_timestamp = curr_time
+
+        # Select physical objects where TTL + storage_start_time is less than the current timestamp
+        stmt = (
+            select(DBPhysicalObjectLocator)
+            .where(
+                DBPhysicalObjectLocator.storage_start_time + 
+                timedelta(seconds=DBPhysicalObjectLocator.ttl) <= logical_timestamp
+                and 
+                DBPhysicalObjectLocator.ttl != -1  # If TTL is -1, never expire
+            )
+        )
+        expired_objects = await db.execute(stmt).scalars().all()
+
+        # Delete expired objects
+        for obj in expired_objects:
+            await db.delete(obj)
+
+        # Commit changes
+        await db.commit()
+
+async def cleanup_expired_objects_periodically(interval_seconds: int = 5):
+    while True:
+        async with engine.begin() as db:
+            # Calculate the current time
+            now = datetime.now()
+
+            # Select and delete objects whose (storage_start_time + ttl) is less than the current time
+            stmt_delete_expired_objects = (
+                delete(DBPhysicalObjectLocator)
+                .where(DBPhysicalObjectLocator.storage_start_time + timedelta(seconds=DBPhysicalObjectLocator.ttl) < now)
+            )
+            await db.execute(stmt_delete_expired_objects)
+            await db.commit()
+
+        # Wait for the specified interval before the next check
+        await asyncio.sleep(interval_seconds)
 
 async def rm_lock_on_timeout(minutes: int = 10, test: bool = False):
     # initial wait to prevent first check which should never run
@@ -170,7 +211,10 @@ async def startup():
 
     task = asyncio.create_task(rm_lock_on_timeout())
     background_tasks.add(task)
-
+    
+    task = asyncio.create_task(cleanup_expired_objects_periodically(interval_seconds=30))
+    background_tasks.add(task)
+    
 
 @app.get("/healthz")
 async def healthz() -> HealthcheckResponse:

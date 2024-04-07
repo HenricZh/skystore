@@ -698,6 +698,7 @@ def test_get_object_write_local_and_pull(client):
         "last_modified": "2020-01-01T00:00:00",
         "multipart_upload_id": None,
         "version": 1,  # NOTE: If you run this test separately, this version number will be different
+        "ttl": 0,  # always_evict policy
     }
 
     # First write to the primary region
@@ -1213,7 +1214,7 @@ async def test_metadata_clean_up(client):
 
     # set minutes to 0 just to prevent stalling and set testing to True. Will bypass initial wait
     await rm_lock_on_timeout(0, test=True)
-
+    
     resp = client.post(
         "/locate_bucket_status",
         json={

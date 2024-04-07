@@ -469,6 +469,7 @@ def test_get_object(client):
         "etag": "123",
         "last_modified": "2020-01-01T00:00:00",
         "multipart_upload_id": None,
+        "ttl": -1,  # ttl is -1 for push
     }
 
     # 404
@@ -593,6 +594,7 @@ def test_get_object_pull_logic(client):
         "etag": "123",
         "last_modified": "2020-01-01T00:00:00",
         "multipart_upload_id": None,
+        "ttl": -1,  # ttl is -1 for always store
     }
 
 
@@ -1047,7 +1049,6 @@ def test_remove_db10(client):
 @pytest.mark.asyncio
 async def test_metadata_clean_up(client):
     """Test that the background process in `complete_create_bucket` endpoint functions correctly."""
-
     resp = client.post(
         "/start_create_bucket",
         json={
@@ -1061,6 +1062,7 @@ async def test_metadata_clean_up(client):
     # set minutes to 0 just to prevent stalling and set testing to True. Will bypass initial wait
     await rm_lock_on_timeout(0, test=True)
 
+    # locate bucket status
     resp = client.post(
         "/locate_bucket_status",
         json={
