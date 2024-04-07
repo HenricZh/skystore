@@ -64,8 +64,8 @@ run-sample-pull:
   docker image rm localhost:5000/alpine
   docker pull localhost:5000/alpine
 
-s3-args := "--endpoint-url http://127.0.0.1:8002 --no-verify-ssl --no-sign-request"
-# s3-args := "--endpoint-url http://127.0.0.1:8002 --no-verify-ssl" # s3fs test 
+# s3-args := "--endpoint-url http://127.0.0.1:8002 --no-verify-ssl --no-sign-request"
+s3-args := "--endpoint-url http://127.0.0.1:8002 --no-verify-ssl" # s3fs test 
 
 run-s3fs:
   mkdir -p test_mount
@@ -73,6 +73,14 @@ run-s3fs:
 
 run-cli-register-put-get:
   cd ../store-server && just register-config 
+  aws s3api {{s3-args}} put-object --bucket default-skybucket --key readme-2 --body "./README.md"
+  aws s3api {{s3-args}} list-objects --bucket default-skybucket
+  rm readme-2 || true
+  aws s3api {{s3-args}} get-object --bucket default-skybucket --key readme-2 readme-2
+  cat readme-2
+  rm readme-2
+
+run-cli-put-get:
   aws s3api {{s3-args}} put-object --bucket default-skybucket --key readme-2 --body "./README.md"
   aws s3api {{s3-args}} list-objects --bucket default-skybucket
   rm readme-2 || true

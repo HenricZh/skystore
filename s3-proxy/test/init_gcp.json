@@ -1,0 +1,7 @@
+{
+    "init_regions": [
+        "gcp:us-east1"
+    ],
+    "client_from_region": "gcp:us-east1",
+    "skystore_bucket_prefix" : "skystore"
+}
