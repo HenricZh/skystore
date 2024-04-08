@@ -1,0 +1,16 @@
+{
+    "bucket": "default-skybucket",
+    "config": {
+        "physical_locations": [
+            {
+                "name": "gcp:us-east1",
+                "cloud": "gcp",
+                "region": "us-east1",
+                "bucket": "skystore-test",
+                "is_primary": true
+            }
+        ]
+    },
+    "skystore_bucket_prefix" : "skystore",
+    "versioning": true
+}

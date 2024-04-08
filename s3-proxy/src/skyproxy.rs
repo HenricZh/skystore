@@ -793,7 +793,7 @@ impl S3 for SkyProxy {
                                     is_multipart: false,
                                     copy_src_bucket: None,
                                     copy_src_key: None,
-                                    ttl: ttl,
+                                    ttl,
                                 },
                             )
                             .await;
