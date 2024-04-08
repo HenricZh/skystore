@@ -65,7 +65,7 @@ def init(
         PutPolicy.always_store, "--put_policy", help="Policy to use for data placement"
     ),
     enable_version: Version = typer.Option(
-        Version.enable, "--version", help="Whether to enable the version or not"
+        Version.NULL, "--version", help="Whether to enable the version or not"
     ),
     server_addr: str = typer.Option(
         "localhost", "--server_addr", help="IP address of the SkyStore metadata server"

@@ -1,0 +1,7 @@
+{
+    "init_regions": [
+        "azure:eastus"
+    ],
+    "client_from_region": "azure:eastus",
+    "skystore_bucket_prefix" : "skystore"
+}
