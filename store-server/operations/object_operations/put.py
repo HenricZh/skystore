@@ -385,6 +385,8 @@ async def complete_upload(
         or policy_name == "always_store"
         or policy_name == "always_evict"
         or policy_name == "single_region"
+        or policy_name == "fixed_ttl"
+        or policy_name == "t_even"
     ):
         # NOTE: might not need to update the logical object for consecutive reads for copy_on_read
         # await db.refresh(physical_locator, ["logical_object"])

@@ -49,7 +49,7 @@ async def clean_object(
             region=obj.region,
             key=obj.key,
             version_id=obj.version_id,
-            version=obj.logical_object.id,
+            version=obj.logical_object_id,
         )
         for obj in objects_to_delete
     ]

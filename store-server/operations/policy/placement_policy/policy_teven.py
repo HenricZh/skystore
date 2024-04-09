@@ -40,6 +40,8 @@ class Teven(PlacementPolicy):
         if src is None or dst is None:
             return self.ttl
 
+        ##### CHECK FOR NON EXISTING SRC/DST
+        return self.ttl
         network_cost = self.stat_graph[src][dst]["cost"]
         storage_cost = self.stat_graph.nodes[dst]["priceStorage"] * 60 * 60 * 24
         if fixed_base_region and network_cost == 0:

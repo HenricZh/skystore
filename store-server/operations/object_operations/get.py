@@ -89,11 +89,13 @@ async def locate_object(
         )
 
     # TODO: add logic of update GET TTL in local DB if in local region
-    # TODO (ask Henric): is this correct?
+    # Henric: This logic is correct. On a hit (request and read region are the same), refresh ttl
     # Reset the storage start time to the current time
     if chosen_locator.region == request.client_from_region and request.op == "GET":
         # NOTE: still time gap until actually start to download
         chosen_locator.storage_start_time = datetime.utcnow()
+
+        # For policies like Teven, may need to calculate new ttl
 
     return LocateObjectResponse(
         id=chosen_locator.id,
