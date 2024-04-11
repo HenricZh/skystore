@@ -130,7 +130,7 @@ class LocateObjectRequest(BaseModel):
     key: str
     client_from_region: str
     version_id: Optional[int] = None
-    ttl: Optional[int] = None
+    ttl: Optional[float] = None
     op: Optional[str] = None
 
 
@@ -204,7 +204,7 @@ class StartUploadRequest(LocateObjectRequest):
     # NOTE: for future, consider whether the bucket is needed here. Should we only do intra-bucket copy?
     copy_src_bucket: Optional[str] = None
     copy_src_key: Optional[str] = None
-    ttl: Optional[int] = None
+    ttl: Optional[float] = None
 
 
 class StartUploadResponse(BaseModel):
@@ -231,7 +231,7 @@ class PatchUploadIsCompleted(BaseModel):
     etag: str
     last_modified: datetime
     version_id: Optional[str] = None
-    ttl: Optional[int] = None
+    ttl: Optional[float] = None
 
 
 class PatchUploadMultipartUploadId(BaseModel):

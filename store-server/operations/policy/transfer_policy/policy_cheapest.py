@@ -27,7 +27,7 @@ class CheapestTransfer(TransferPolicy):
         # find the cheapest region (network cost) to get from client_from_region
         return min(
             physical_locators,
-            key=lambda loc: self.stat_graph[client_from_region][loc.location_tag][
+            key=lambda loc: self.stat_graph[loc.location_tag][client_from_region][
                 "cost"
             ],
         )
