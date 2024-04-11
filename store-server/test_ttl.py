@@ -1,9 +1,13 @@
+import csv
+import json
+import time
 import pytest
 from starlette.testclient import TestClient
 from app import app, rm_lock_on_timeout
 from operations.utils.db import run_create_database
 from threading import Thread
 from datetime import datetime
+from conf import TEST_CONFIGURATION
 
 @pytest.fixture
 def client():
@@ -359,7 +363,127 @@ def test_policy(client):
     )
     resp.raise_for_status()
 
-# def test_remove_db4(client):
-#     thread = Thread(target=run_create_database)
-#     thread.start()
-#     thread.join()
+def test_remove_db4(client):
+    thread = Thread(target=run_create_database)
+    thread.start()
+    thread.join()
+
+def test_trace(client):
+
+    # aws:us-west-1, aws:us-east-1, aws:eu-south-1, aws:eu-central-1, aws:eu-north-1, gcp:eu-west1-a,  
+    resp = client.post(
+        "/start_create_bucket",
+        json={
+            "bucket": "test-bucket",# + region[4:],
+            "client_from_region": "aws:us-east-1"#region,
+        },
+    )
+    resp.raise_for_status()
+
+    # patch
+    for physical_bucket in resp.json()["locators"]:
+        resp = client.patch(
+            "/complete_create_bucket",
+            json={
+                "id": physical_bucket["id"],
+                "creation_date": "2020-01-01T00:00:00",
+            },
+        )
+        resp.raise_for_status()
+
+    # set policy
+    resp = client.post(
+        "/update_policy",
+        json={
+            "put_policy": "fixed_ttl",
+            "get_policy": "cheapest",
+        },
+    )
+
+    responses = []
+    with open("./experiment/trace/small_trace.csv", "r") as f:
+        csv_reader = csv.reader(f)
+        next(csv_reader)  # Skip the header
+        for row in csv_reader:
+            timestamp_str, op, issue_region, data_id, size, ttl = row
+            timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+
+            # if previous_timestamp:
+            #     wait_time = (timestamp - previous_timestamp).total_seconds()
+            #     time.sleep(wait_time)
+
+            if op == "write":
+                resp = client.post(
+                    "/start_upload",
+                    json={
+                        "bucket": "test-bucket",
+                        "key": str(data_id),
+                        "client_from_region": issue_region,
+                        "is_multipart": False,
+                        "ttl": ttl
+                    },
+                )
+                resp.raise_for_status()
+
+                for i, physical_object in enumerate(resp.json()["locators"]):
+                    # print(physical_object)
+                    client.patch(
+                        "/complete_upload",
+                        json={
+                            "id": physical_object["id"],
+                            "size": size,
+                            "etag": "123",
+                            "last_modified": timestamp_str.replace(" ", "T"),
+                            #"version_id": f"version-{i}",
+                        },
+                    ).raise_for_status()
+
+                responses.append((op, issue_region))
+
+            elif op == "read":
+                resp = client.post(
+                    "/locate_object",
+                    json={
+                        "bucket": "test-bucket",
+                        "key": str(data_id),
+                        "client_from_region": issue_region,
+                    },
+                )
+                resp.raise_for_status()
+                
+                responses.append((op, json.loads(resp.text)["tag"]))
+                
+                ttl = json.loads(resp.text)["ttl"]
+                resp = client.post(
+                    "/start_upload",
+                    json={
+                        "bucket": "test-bucket",
+                        "key": str(data_id),
+                        "client_from_region": issue_region,
+                        "is_multipart": False,
+                        "ttl": ttl
+                    },
+                )
+
+                if resp.status_code <= 200:
+                    for i, physical_object in enumerate(resp.json()["locators"]):
+                        print(physical_object)
+                        client.patch(
+                            "/complete_upload",
+                            json={
+                                "id": physical_object["id"],
+                                "size": size,
+                                "etag": "123",
+                                "last_modified": timestamp_str.replace(" ", "T"),
+                                #"version_id": f"version-{i}",
+                            },
+                        )
+
+            resp = client.post(
+                "/clean_object",
+                json={
+                    "timestamp": timestamp_str.replace(" ", "T"),
+                },
+            )
+
+        assert responses == [('write', 'aws:us-west-1'), ('read', 'aws:us-west-1'), ('write', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-west-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('write', 'aws:eu-central-1'), ('read', 'aws:us-east-1'), ('read', 'aws:eu-central-1'), ('read', 'aws:us-west-1')]
