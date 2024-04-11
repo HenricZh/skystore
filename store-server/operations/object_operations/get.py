@@ -85,7 +85,7 @@ async def locate_object(
         dst_object_ttl = request.ttl
     else:
         dst_object_ttl = put_policy.get_ttl(
-            src=chosen_locator.region, dst=request.client_from_region
+            src=chosen_locator.location_tag, dst=request.client_from_region
         )
 
     # TODO: add logic of update GET TTL in local DB if in local region

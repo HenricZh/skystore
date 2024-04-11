@@ -37,13 +37,14 @@ class Teven(PlacementPolicy):
         Returns:
             int: time to live for this object
         """
-        if src is None or dst is None:
+        
+        if not self.stat_graph.has_edge(src, dst) or not self.stat_graph.has_node(dst):
             return self.ttl
 
-        ##### CHECK FOR NON EXISTING SRC/DST
-        return self.ttl
         network_cost = self.stat_graph[src][dst]["cost"]
-        storage_cost = self.stat_graph.nodes[dst]["priceStorage"] * 60 * 60 * 24
-        if fixed_base_region and network_cost == 0:
+        storage_cost = self.stat_graph.nodes[dst]["priceStorage"]
+        # print("net cost:", network_cost)
+        # print("storage cost: ", self.stat_graph.nodes[dst]["priceStorage"])
+        if network_cost == 0:
             network_cost = 0.056
-        return network_cost / storage_cost
+        return network_cost / storage_cost * 60 * 60

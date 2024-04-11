@@ -775,13 +775,6 @@ def test_remove_db4(client):
     thread.start()
     thread.join()
 
-
-def test_remove_db5(client):
-    thread = Thread(target=run_create_database)
-    thread.start()
-    thread.join()
-
-
 def test_write_back(client):
     resp = client.post(
         "/start_create_bucket",
@@ -897,7 +890,7 @@ def test_write_back(client):
     assert resp.json()["region"] == "us-west-1"
 
 
-def test_remove_db6(client):
+def test_remove_db5(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
@@ -1014,7 +1007,7 @@ def test_list_objects(client):
     ]
 
 
-def test_remove_db7(client):
+def test_remove_db6(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
@@ -1193,7 +1186,7 @@ def test_multipart_flow(client):
     # should be the newset version
 
 
-def test_remove_db8(client):
+def test_remove_db7(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
@@ -1286,7 +1279,7 @@ async def test_metadata_clean_up(client):
         assert obj["status"] == "ready"
 
 
-def test_remove_db9(client):
+def test_remove_db8(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
@@ -1357,7 +1350,7 @@ def test_disable_bucket_versioning(client):
     assert resp.status_code == 409
 
 
-def test_remove_db10(client):
+def test_remove_db9(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
@@ -1455,3 +1448,8 @@ def test_copy_objects(client):
         },
     )
     assert len(resp.json()) == 2
+
+def test_remove_db10(client):
+    thread = Thread(target=run_create_database)
+    thread.start()
+    thread.join()

@@ -149,7 +149,7 @@ class LocateObjectResponse(BaseModel):
     etag: Optional[str] = None
     multipart_upload_id: Optional[str] = None
 
-    ttl: Optional[int] = None  # TTL you should set for the object (depends on policy)
+    ttl: Optional[float] = None  # TTL you should set for the object (depends on policy)
 
 
 class DBLogicalMultipartUploadPart(Base):
