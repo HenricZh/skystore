@@ -734,8 +734,8 @@ def test_trace_tevict(client):
                     "timestamp": timestamp_str.replace(" ", "T"),
                 },
             )
-        print(responses)
-        assert responses == [('write', 'aws:us-west-1'), ('read', 'aws:us-west-1'), ('write', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('write', 'aws:eu-central-1'), ('read', 'aws:us-east-1'), ('read', 'aws:eu-central-1'), ('read', 'aws:us-west-1')]
+            
+        assert responses == [('write', 'aws:us-west-1'), ('read', 'aws:us-west-1'), ('write', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-west-1'), ('read', 'aws:us-west-1'), ('read', 'aws:us-east-1'), ('write', 'aws:eu-central-1'), ('read', 'aws:us-east-1'), ('read', 'aws:eu-central-1'), ('read', 'aws:us-west-1')]
 
 def test_remove_db7(client):
     thread = Thread(target=run_create_database)
