@@ -32,7 +32,7 @@ class PutPolicy(str, Enum):
     fixed_ttl = "fixed_ttl"
     t_even = "t_even"
     t_evict = "t_evict"
-    
+
     push = "push"
     replicate_all = "replicate_all"
     single_region = "single_region"

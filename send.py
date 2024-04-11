@@ -55,11 +55,12 @@ async def main(server_addr):
             )
         last_file_line = len(metrics)
 
+
 # Initialize parser
 parser = argparse.ArgumentParser()
- 
+
 # Adding optional argument
-parser.add_argument("--server_addr", help = "ip address of the server")
+parser.add_argument("--server_addr", help="ip address of the server")
 
 args = parser.parse_args()
 

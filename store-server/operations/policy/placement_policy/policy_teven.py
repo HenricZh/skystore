@@ -37,7 +37,7 @@ class Teven(PlacementPolicy):
         Returns:
             int: time to live for this object
         """
-        
+
         if not self.stat_graph.has_edge(src, dst) or not self.stat_graph.has_node(dst):
             return self.ttl
 

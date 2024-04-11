@@ -775,6 +775,7 @@ def test_remove_db4(client):
     thread.start()
     thread.join()
 
+
 def test_write_back(client):
     resp = client.post(
         "/start_create_bucket",
@@ -1448,6 +1449,7 @@ def test_copy_objects(client):
         },
     )
     assert len(resp.json()) == 2
+
 
 def test_remove_db10(client):
     thread = Thread(target=run_create_database)

@@ -9,6 +9,7 @@ from threading import Thread
 from datetime import datetime
 from conf import TEST_CONFIGURATION
 
+
 @pytest.fixture
 def client():
     with TestClient(app) as client:
@@ -20,6 +21,7 @@ def test_remove_db(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
+
 
 @pytest.mark.asyncio
 async def test_remove_objects(client):
@@ -85,7 +87,7 @@ async def test_remove_objects(client):
                 "size": 100,
                 "etag": "123",
                 "last_modified": "2020-01-01T00:00:00",
-                #"version_id": f"version-{i}",
+                # "version_id": f"version-{i}",
             },
         ).raise_for_status()
 
@@ -108,10 +110,9 @@ async def test_remove_objects(client):
                 "size": 100,
                 "etag": "123",
                 "last_modified": "2020-01-01T06:00:00",
-                #"version_id": f"version-{i}",
+                # "version_id": f"version-{i}",
             },
         ).raise_for_status()
-
 
     # # this will locate the newest version of the object
     resp = client.post(
@@ -126,9 +127,7 @@ async def test_remove_objects(client):
 
     resp = client.post(
         "/clean_object",
-        json={
-            "timestamp": "2020-01-01T13:00:00"
-        },
+        json={"timestamp": "2020-01-01T13:00:00"},
     )
 
     resp = client.post(
@@ -152,10 +151,12 @@ async def test_remove_objects(client):
     )
     resp.raise_for_status()
 
+
 def test_remove_db2(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
+
 
 def test_remove_ready_objects(client):
     # Create Bucket
@@ -210,12 +211,9 @@ def test_remove_ready_objects(client):
     )
     resp.raise_for_status()
 
-
     resp = client.post(
         "/clean_object",
-        json={
-            "timestamp": "2020-01-01T00:00:00"
-        },
+        json={"timestamp": "2020-01-01T00:00:00"},
     )
 
     # Object Should not exist
@@ -228,6 +226,7 @@ def test_remove_ready_objects(client):
         },
     )
     assert resp.status_code == 404
+
 
 def test_remove_db3(client):
     thread = Thread(target=run_create_database)
@@ -296,7 +295,7 @@ def test_policy(client):
                 "size": 100,
                 "etag": "123",
                 "last_modified": "2020-01-01T00:00:00",
-                #"version_id": f"version-{i}",
+                # "version_id": f"version-{i}",
             },
         ).raise_for_status()
 
@@ -319,10 +318,9 @@ def test_policy(client):
                 "size": 100,
                 "etag": "123",
                 "last_modified": "2020-01-02T06:00:00",
-                #"version_id": f"version-{i}",
+                # "version_id": f"version-{i}",
             },
         ).raise_for_status()
-
 
     # # this will locate the newest version of the object
     resp = client.post(
@@ -337,9 +335,7 @@ def test_policy(client):
 
     resp = client.post(
         "/clean_object",
-        json={
-            "timestamp": "2020-01-02T08:00:00"
-        },
+        json={"timestamp": "2020-01-02T08:00:00"},
     )
 
     resp = client.post(
@@ -363,19 +359,20 @@ def test_policy(client):
     )
     resp.raise_for_status()
 
+
 def test_remove_db4(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
 
-def test_trace_fixedttl(client):
 
-    # aws:us-west-1, aws:us-east-1, aws:eu-south-1, aws:eu-central-1, aws:eu-north-1, gcp:eu-west1-a,  
+def test_trace_fixedttl(client):
+    # aws:us-west-1, aws:us-east-1, aws:eu-south-1, aws:eu-central-1, aws:eu-north-1, gcp:eu-west1-a,
     resp = client.post(
         "/start_create_bucket",
         json={
-            "bucket": "test-bucket",# + region[4:],
-            "client_from_region": "aws:us-east-1"#region,
+            "bucket": "test-bucket",  # + region[4:],
+            "client_from_region": "aws:us-east-1",  # region,
         },
     )
     resp.raise_for_status()
@@ -420,7 +417,7 @@ def test_trace_fixedttl(client):
                         "key": str(data_id),
                         "client_from_region": issue_region,
                         "is_multipart": False,
-                        "ttl": ttl
+                        "ttl": ttl,
                     },
                 )
                 resp.raise_for_status()
@@ -434,7 +431,7 @@ def test_trace_fixedttl(client):
                             "size": size,
                             "etag": "123",
                             "last_modified": timestamp_str.replace(" ", "T"),
-                            #"version_id": f"version-{i}",
+                            # "version_id": f"version-{i}",
                         },
                     ).raise_for_status()
 
@@ -450,9 +447,9 @@ def test_trace_fixedttl(client):
                     },
                 )
                 resp.raise_for_status()
-                
+
                 responses.append((op, json.loads(resp.text)["tag"]))
-                
+
                 ttl = json.loads(resp.text)["ttl"]
                 resp = client.post(
                     "/start_upload",
@@ -461,7 +458,7 @@ def test_trace_fixedttl(client):
                         "key": str(data_id),
                         "client_from_region": issue_region,
                         "is_multipart": False,
-                        "ttl": ttl
+                        "ttl": ttl,
                     },
                 )
 
@@ -475,7 +472,7 @@ def test_trace_fixedttl(client):
                                 "size": size,
                                 "etag": "123",
                                 "last_modified": timestamp_str.replace(" ", "T"),
-                                #"version_id": f"version-{i}",
+                                # "version_id": f"version-{i}",
                             },
                         )
 
@@ -485,21 +482,34 @@ def test_trace_fixedttl(client):
                     "timestamp": timestamp_str.replace(" ", "T"),
                 },
             )
-        assert responses == [('write', 'aws:us-west-1'), ('read', 'aws:us-west-1'), ('write', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('write', 'aws:eu-central-1'), ('read', 'aws:us-east-1'), ('read', 'aws:eu-central-1'), ('read', 'aws:us-west-1')]
+        assert responses == [
+            ("write", "aws:us-west-1"),
+            ("read", "aws:us-west-1"),
+            ("write", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("write", "aws:eu-central-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:eu-central-1"),
+            ("read", "aws:us-west-1"),
+        ]
+
 
 def test_remove_db5(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
 
-def test_trace_teven(client):
 
-    # aws:us-west-1, aws:us-east-1, aws:eu-south-1, aws:eu-central-1, aws:eu-north-1, gcp:eu-west1-a,  
+def test_trace_teven(client):
+    # aws:us-west-1, aws:us-east-1, aws:eu-south-1, aws:eu-central-1, aws:eu-north-1, gcp:eu-west1-a,
     resp = client.post(
         "/start_create_bucket",
         json={
-            "bucket": "test-bucket",# + region[4:],
-            "client_from_region": "aws:us-east-1"#region,
+            "bucket": "test-bucket",  # + region[4:],
+            "client_from_region": "aws:us-east-1",  # region,
         },
     )
     resp.raise_for_status()
@@ -544,7 +554,7 @@ def test_trace_teven(client):
                         "key": str(data_id),
                         "client_from_region": issue_region,
                         "is_multipart": False,
-                        "ttl": ttl
+                        "ttl": ttl,
                     },
                 )
                 resp.raise_for_status()
@@ -558,7 +568,7 @@ def test_trace_teven(client):
                             "size": size,
                             "etag": "123",
                             "last_modified": timestamp_str.replace(" ", "T"),
-                            #"version_id": f"version-{i}",
+                            # "version_id": f"version-{i}",
                         },
                     ).raise_for_status()
 
@@ -574,9 +584,9 @@ def test_trace_teven(client):
                     },
                 )
                 resp.raise_for_status()
-                
+
                 responses.append((op, json.loads(resp.text)["tag"]))
-                
+
                 ttl = json.loads(resp.text)["ttl"]
                 print("ttl:", ttl)
                 resp = client.post(
@@ -586,7 +596,7 @@ def test_trace_teven(client):
                         "key": str(data_id),
                         "client_from_region": issue_region,
                         "is_multipart": False,
-                        "ttl": ttl
+                        "ttl": ttl,
                     },
                 )
 
@@ -600,7 +610,7 @@ def test_trace_teven(client):
                                 "size": size,
                                 "etag": "123",
                                 "last_modified": timestamp_str.replace(" ", "T"),
-                                #"version_id": f"version-{i}",
+                                # "version_id": f"version-{i}",
                             },
                         )
 
@@ -610,21 +620,34 @@ def test_trace_teven(client):
                     "timestamp": timestamp_str.replace(" ", "T"),
                 },
             )
-        assert responses == [('write', 'aws:us-west-1'), ('read', 'aws:us-west-1'), ('write', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('write', 'aws:eu-central-1'), ('read', 'aws:us-east-1'), ('read', 'aws:eu-central-1'), ('read', 'aws:us-west-1')]
+        assert responses == [
+            ("write", "aws:us-west-1"),
+            ("read", "aws:us-west-1"),
+            ("write", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("write", "aws:eu-central-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:eu-central-1"),
+            ("read", "aws:us-west-1"),
+        ]
+
 
 def test_remove_db6(client):
     thread = Thread(target=run_create_database)
     thread.start()
     thread.join()
 
-def test_trace_tevict(client):
 
-    # aws:us-west-1, aws:us-east-1, aws:eu-south-1, aws:eu-central-1, aws:eu-north-1, gcp:eu-west1-a,  
+def test_trace_tevict(client):
+    # aws:us-west-1, aws:us-east-1, aws:eu-south-1, aws:eu-central-1, aws:eu-north-1, gcp:eu-west1-a,
     resp = client.post(
         "/start_create_bucket",
         json={
-            "bucket": "test-bucket",# + region[4:],
-            "client_from_region": "aws:us-east-1"#region,
+            "bucket": "test-bucket",  # + region[4:],
+            "client_from_region": "aws:us-east-1",  # region,
         },
     )
     resp.raise_for_status()
@@ -644,7 +667,7 @@ def test_trace_tevict(client):
     resp = client.post(
         "/update_policy",
         json={
-            "put_policy": "fixed_ttl", # Put fixed_ttl but the trace wil set ttl correctly
+            "put_policy": "fixed_ttl",  # Put fixed_ttl but the trace wil set ttl correctly
             "get_policy": "cheapest",
         },
     )
@@ -665,7 +688,7 @@ def test_trace_tevict(client):
                         "key": str(data_id),
                         "client_from_region": issue_region,
                         "is_multipart": False,
-                        "ttl": 3600 * float(ttl) if float(ttl) != -1 else -1
+                        "ttl": 3600 * float(ttl) if float(ttl) != -1 else -1,
                     },
                 )
                 resp.raise_for_status()
@@ -679,7 +702,7 @@ def test_trace_tevict(client):
                             "size": size,
                             "etag": "123",
                             "last_modified": timestamp_str.replace(" ", "T"),
-                            #"version_id": f"version-{i}",
+                            # "version_id": f"version-{i}",
                         },
                     ).raise_for_status()
 
@@ -695,9 +718,9 @@ def test_trace_tevict(client):
                     },
                 )
                 resp.raise_for_status()
-                
+
                 responses.append((op, json.loads(resp.text)["tag"]))
-                
+
                 resp = client.post(
                     "/start_upload",
                     json={
@@ -705,7 +728,7 @@ def test_trace_tevict(client):
                         "key": str(data_id),
                         "client_from_region": issue_region,
                         "is_multipart": False,
-                        "ttl": 3600 * float(ttl) if float(ttl) != -1 else -1
+                        "ttl": 3600 * float(ttl) if float(ttl) != -1 else -1,
                     },
                 )
 
@@ -719,7 +742,7 @@ def test_trace_tevict(client):
                                 "size": size,
                                 "etag": "123",
                                 "last_modified": timestamp_str.replace(" ", "T"),
-                                #"version_id": f"version-{i}",
+                                # "version_id": f"version-{i}",
                             },
                         )
 
@@ -730,7 +753,20 @@ def test_trace_tevict(client):
                 },
             )
         print(responses)
-        assert responses == [('write', 'aws:us-west-1'), ('read', 'aws:us-west-1'), ('write', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('read', 'aws:us-east-1'), ('write', 'aws:eu-central-1'), ('read', 'aws:us-east-1'), ('read', 'aws:eu-central-1'), ('read', 'aws:us-west-1')]
+        assert responses == [
+            ("write", "aws:us-west-1"),
+            ("read", "aws:us-west-1"),
+            ("write", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:us-east-1"),
+            ("write", "aws:eu-central-1"),
+            ("read", "aws:us-east-1"),
+            ("read", "aws:eu-central-1"),
+            ("read", "aws:us-west-1"),
+        ]
+
 
 def test_remove_db7(client):
     thread = Thread(target=run_create_database)
