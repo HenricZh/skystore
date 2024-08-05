@@ -97,6 +97,9 @@ async def locate_object(
 
         # For policies like Teven, may need to calculate new ttl
 
+        # Persist refreshed ttl data
+        db.commit()    
+
     return LocateObjectResponse(
         id=chosen_locator.id,
         tag=chosen_locator.location_tag,
