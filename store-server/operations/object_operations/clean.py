@@ -21,11 +21,9 @@ async def clean_object(
 ) -> CleanObjectResponse:
     """Given the current timestamp, clean the object based on TTL."""
     current_timestamp = request.timestamp
-    # Print all objects
-    print("All objects:")
+    # Get all objects
     all_objects = await db.execute(select(DBPhysicalObjectLocator))
     all_objects = all_objects.scalars().all()
-    print(all_objects)
 
     # Fetch objects that meet the deletion criteria
     objects_to_delete_query = select(DBPhysicalObjectLocator).where(
